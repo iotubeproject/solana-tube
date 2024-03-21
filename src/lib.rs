@@ -1,26 +1,14 @@
-use solana_program::{
-    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, msg, pubkey::Pubkey,
-};
+pub mod entrypoint;
+pub mod error;
+pub mod instruction;
+// pub mod processor;
 
-entrypoint!(process_instruction);
+// Export current sdk types for downstream users building with a different sdk
+// version
+pub use solana_program;
 
-pub fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
-    instruction_data: &[u8],
-) -> ProgramResult {
-    msg!("Hello, world!");
-
-    Ok(())
-}
-
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-
-//     #[test]
-//     fn it_works() {
-//         let result = add(2, 2);
-//         assert_eq!(result, 4);
-//     }
-// }
+/// Seed prefix for Governance  PDAs
+/// Note: This prefix is used for the initial set of PDAs and shouldn't be used
+/// for any new accounts All new PDAs should use a unique prefix to guarantee
+/// uniqueness for each account
+pub const PROGRAM_AUTHORITY_SEED: &[u8] = b"governance";
