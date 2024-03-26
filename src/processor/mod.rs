@@ -1,9 +1,12 @@
 //! Program processor
 
 mod process_create_mint_governance;
+mod process_create_realm;
 mod process_execute_transaction;
 
 use {
+    process_create_mint_governance::*,
+    process_create_realm::*,
     process_execute_transaction::*,
     solana_program::{
         account_info::AccountInfo, borsh0_10::try_from_slice_unchecked, entrypoint::ProgramResult,
@@ -28,9 +31,21 @@ pub fn process_instruction(
     msg!("GOVERNANCE-INSTRUCTION: {:?}", instruction);
 
     match instruction {
+        GovernanceInstruction::CreateRealm { name, config_args } => {
+            process_create_realm(program_id, accounts, name, config_args)
+        }
+
+        GovernanceInstruction::CreateMintGovernance {
+            config,
+            transfer_mint_authorities,
+        } => {
+            process_create_mint_governance(program_id, accounts, config, transfer_mint_authorities)
+        }
+
         GovernanceInstruction::ExecuteTransaction {} => {
             process_execute_transaction(program_id, accounts)
         }
+
         _ => {
             msg!("Instruction not available");
             Err(GovernanceError::InvalidInstruction.into())
