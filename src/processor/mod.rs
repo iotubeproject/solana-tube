@@ -1,5 +1,6 @@
 //! Program processor
 
+mod process_create_mint_governance;
 mod process_execute_transaction;
 
 use {

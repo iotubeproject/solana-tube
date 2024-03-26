@@ -8,6 +8,8 @@ edition = "2021"
 [dependencies]
 solana-program = "1.18.7"
 spl-governance = {version = "4.0.0", features = ["no-entrypoint"]}
+spl-governance-tools = "0.1.4"
+spl-token = "4.0.1"
 
 [lib]
 name = "hello_world"
