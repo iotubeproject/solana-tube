@@ -74,9 +74,20 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
     // proposal_data.state = ProposalState::Executing;
 
     // TODO: Hardcode Mint_to instruction for POC
-    for instruction in instructions {
-        invoke_signed(&instruction, instruction_account_infos, &signers_seeds[..])?;
-    }
+    // for instruction in instructions {
+    invoke_signed(
+        &spl_token::instruction::mint_to(
+            TOKEN_PROGRAM_ID,
+            token_mint.key,
+            user_ata.key,
+            mint_auth.key,
+            &[],
+            10 * LAMPORTS_PER_SOL,
+        )?,
+        instruction_account_infos,
+        &signers_seeds[..],
+    )?;
+    // }
 
     // Update proposal and instruction accounts
 

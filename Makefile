@@ -10,12 +10,15 @@ TARGET_DIR = target
 
 all: build
 
-build:
+build: clean-deploy
 	$(CARGO) build-bpf
 
 clean:
 	$(CARGO) clean
 	rm -rf $(TARGET_DIR)
+
+clean-deploy:
+	rm -rf $(TARGET_DIR)/deploy
 
 test:
 	$(CARGO) test
@@ -26,5 +29,8 @@ doc:
 integration-test:
 	cargo test-bpf
 
-deploy:
-	cargo deploy
+airdrop:
+	solana airdrop 3
+
+deploy: airdrop
+	solana program deploy ./target/deploy/solana_gov.so
