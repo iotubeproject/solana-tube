@@ -3,6 +3,7 @@
 mod process_create_governance;
 mod process_create_realm;
 mod process_execute_transaction;
+mod signature;
 
 use {
     borsh::BorshDeserialize,
