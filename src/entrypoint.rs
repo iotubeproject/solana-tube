@@ -20,7 +20,5 @@ fn process_instruction(
         return Err(error);
     }
 
-    msg!("Hello, world!");
-
     Ok(())
 }

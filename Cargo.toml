@@ -10,8 +10,12 @@ borsh = "0.10.3"
 libsecp256k1 = { version = "0.7.1", default-features = false }
 solana-program = "1.18.7"
 spl-governance = {version = "4.0.0", features = ["no-entrypoint"]}
+spl-governance-addin-api = "0.1.4"
 spl-governance-tools = "0.1.4"
 spl-token = "4.0.1"
+
+[dev-dependencies]
+proptest = "1.4.0"
 
 [lib]
 name = "solana_gov"

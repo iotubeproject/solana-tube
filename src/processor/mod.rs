@@ -1,6 +1,7 @@
 //! Program processor
 
 mod process_create_governance;
+mod process_create_proposal;
 mod process_create_realm;
 mod process_execute_transaction;
 mod signature;
@@ -8,6 +9,7 @@ mod signature;
 use {
     borsh::BorshDeserialize,
     process_create_governance::*,
+    process_create_proposal::*,
     process_create_realm::*,
     process_execute_transaction::*,
     solana_program::{
@@ -40,6 +42,24 @@ pub fn process_instruction(
         GovernanceInstruction::CreateGovernance { config } => {
             process_create_governance(program_id, accounts, config)
         }
+
+        GovernanceInstruction::CreateProposal {
+            name,
+            description_link,
+            vote_type: proposal_type,
+            options,
+            use_deny_option,
+            proposal_seed,
+        } => process_create_proposal(
+            program_id,
+            accounts,
+            name,
+            description_link,
+            proposal_type,
+            options,
+            use_deny_option,
+            proposal_seed,
+        ),
 
         GovernanceInstruction::ExecuteTransaction {} => {
             process_execute_transaction(program_id, accounts)
