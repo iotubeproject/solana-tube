@@ -4,6 +4,7 @@ mod process_create_governance;
 mod process_create_proposal;
 mod process_create_realm;
 mod process_execute_transaction;
+mod process_insert_transaction;
 mod signature;
 
 use {
@@ -12,6 +13,7 @@ use {
     process_create_proposal::*,
     process_create_realm::*,
     process_execute_transaction::*,
+    process_insert_transaction::*,
     solana_program::{
         account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
         pubkey::Pubkey,
@@ -60,6 +62,13 @@ pub fn process_instruction(
             use_deny_option,
             proposal_seed,
         ),
+
+        GovernanceInstruction::InsertTransaction {
+            option_index,
+            index,
+            hold_up_time: _,
+            instructions,
+        } => process_insert_transaction(program_id, accounts, option_index, index, instructions),
 
         GovernanceInstruction::ExecuteTransaction {} => {
             process_execute_transaction(program_id, accounts)
