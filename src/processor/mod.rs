@@ -3,6 +3,7 @@
 mod process_create_governance;
 mod process_create_proposal;
 mod process_create_realm;
+mod process_deposit_governing_tokens;
 mod process_execute_transaction;
 mod process_insert_transaction;
 mod signature;
@@ -12,6 +13,7 @@ use {
     process_create_governance::*,
     process_create_proposal::*,
     process_create_realm::*,
+    process_deposit_governing_tokens::*,
     process_execute_transaction::*,
     process_insert_transaction::*,
     solana_program::{
@@ -39,6 +41,10 @@ pub fn process_instruction(
     match instruction {
         GovernanceInstruction::CreateRealm { name, config_args } => {
             process_create_realm(program_id, accounts, name, config_args)
+        }
+
+        GovernanceInstruction::DepositGoverningTokens { amount } => {
+            process_deposit_governing_tokens(program_id, accounts, amount)
         }
 
         GovernanceInstruction::CreateGovernance { config } => {
