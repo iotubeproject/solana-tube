@@ -45,14 +45,15 @@ pub fn process_create_governance(
 
     assert_valid_create_governance_args(program_id, &config, realm_info)?;
 
-    // let realm_data = get_realm_data(program_id, realm_info)?;
-    // realm_data.assert_create_authority_can_create_governance(
-    //     program_id,
-    //     realm_info.key,
-    //     token_owner_record_info,
-    //     create_authority_info,
-    //     account_info_iter, // realm_config_info 7, voter_weight_record_info 8
-    // )?;
+    let realm_data = get_realm_data(program_id, realm_info)?;
+
+    realm_data.assert_create_authority_can_create_governance(
+        program_id,
+        realm_info.key,
+        token_owner_record_info,
+        create_authority_info,
+        account_info_iter, // realm_config_info 7, voter_weight_record_info 8
+    )?;
 
     let governance_data = GovernanceV2 {
         account_type: GovernanceAccountType::GovernanceV2,
