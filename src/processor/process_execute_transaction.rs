@@ -87,8 +87,6 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
     // proposal_data.executing_at = Some(clock.unix_timestamp);
     // proposal_data.state = ProposalState::Executing;
 
-    // msg!("account_infos: {:?}", instruction_account_infos);
-
     for instruction in instructions {
         invoke_signed(&instruction, instruction_account_infos, &signers_seeds[..])?;
     }
