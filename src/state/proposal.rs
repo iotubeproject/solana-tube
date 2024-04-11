@@ -70,6 +70,16 @@ pub struct ProposalOption {
     pub transactions_next_index: u16,
 }
 
+/// Proposal Option
+#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
+pub struct ProposalOffchainVotesRecord {
+    /// The number of voting records submitted
+    pub vote_records_count: u64,
+
+    /// The address of the last vote record
+    pub last_vote_record_account: Pubkey,
+}
+
 /// Governance Proposal
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct ProposalV2 {
