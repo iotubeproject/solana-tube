@@ -10,66 +10,13 @@ use {
     spl_governance::{
         error::GovernanceError,
         state::{
-            enums::GovernanceAccountType,
-            legacy::{VoteRecordV1, VoteWeightV1},
-            proposal::ProposalV2,
-            realm::RealmV2,
-            token_owner_record::TokenOwnerRecordV2,
+            enums::GovernanceAccountType, proposal::ProposalV2, realm::RealmV2,
+            token_owner_record::TokenOwnerRecordV2, vote_record::Vote,
         },
         PROGRAM_AUTHORITY_SEED,
     },
-    spl_governance_tools::account::{get_account_data, get_account_type, AccountMaxSize},
+    spl_governance_tools::account::{get_account_data, AccountMaxSize},
 };
-
-/// Voter choice for a proposal option
-/// In the current version only 1) Single choice, 2) Multiple choices proposals
-/// and 3) Weighted voting are supported.
-/// In the future versions we can add support for 1) Quadratic voting and
-/// 2) Ranked choice voting
-#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
-pub struct VoteChoice {
-    /// The rank given to the choice by voter
-    /// Note: The field is not used in the current version
-    pub rank: u8,
-
-    /// The voter's weight percentage given by the voter to the choice
-    pub weight_percentage: u8,
-}
-
-impl VoteChoice {
-    /// Returns the choice weight given the voter's weight
-    pub fn get_choice_weight(&self, voter_weight: u64) -> Result<u64, ProgramError> {
-        Ok(match self.weight_percentage {
-            // Avoid any rounding errors for full weight
-            100 => voter_weight,
-            // Note: The total weight for all choices might not equal voter_weight due to rounding
-            // errors
-            0..=99 => (voter_weight as u128)
-                .checked_mul(self.weight_percentage as u128)
-                .unwrap()
-                .checked_div(100)
-                .unwrap() as u64,
-            _ => return Err(GovernanceError::InvalidVoteChoiceWeightPercentage.into()),
-        })
-    }
-}
-
-/// User's vote
-#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
-pub enum Vote {
-    /// Vote approving choices
-    Approve(Vec<VoteChoice>),
-
-    /// Vote rejecting proposal
-    Deny,
-
-    /// Declare indifference to proposal
-    /// Note: Not supported in the current version
-    Abstain,
-
-    /// Veto proposal
-    Veto,
-}
 
 /// Proposal VoteRecord
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
@@ -140,35 +87,7 @@ pub fn get_offchain_votes_record_data(
     program_id: &Pubkey,
     offchain_votes_record_info: &AccountInfo,
 ) -> Result<OffchainVotesRecord, ProgramError> {
-    let account_type: GovernanceAccountType = get_account_type(program_id, vote_record_info)?;
-
-    // If the account is V1 version then translate to V2
-    if account_type == GovernanceAccountType::VoteRecordV1 {
-        let vote_record_data_v1 = get_account_data::<VoteRecordV1>(program_id, vote_record_info)?;
-
-        let (vote, voter_weight) = match vote_record_data_v1.vote_weight {
-            VoteWeightV1::Yes(weight) => (
-                Vote::Approve(vec![VoteChoice {
-                    rank: 0,
-                    weight_percentage: 100,
-                }]),
-                weight,
-            ),
-            VoteWeightV1::No(weight) => (Vote::Deny, weight),
-        };
-
-        return Ok(VoteRecordV2 {
-            account_type,
-            proposal: vote_record_data_v1.proposal,
-            governing_token_owner: vote_record_data_v1.governing_token_owner,
-            is_relinquished: vote_record_data_v1.is_relinquished,
-            voter_weight,
-            vote,
-            reserved_v2: [0; 8],
-        });
-    }
-
-    get_account_data::<VoteRecordV2>(program_id, vote_record_info)
+    get_account_data::<OffchainVotesRecord>(program_id, offchain_votes_record_info)
 }
 
 /// Deserializes VoteRecord and checks it belongs to the provided Proposal and
