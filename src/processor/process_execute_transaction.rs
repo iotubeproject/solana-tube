@@ -22,6 +22,7 @@ use {
         proposal_transaction::get_proposal_transaction_data_for_proposal,
     },
     spl_token::{
+        instruction::TokenInstruction,
         state::{Account, Mint},
         ID as TOKEN_PROGRAM_ID,
     },
@@ -87,7 +88,13 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
     // proposal_data.executing_at = Some(clock.unix_timestamp);
     // proposal_data.state = ProposalState::Executing;
 
-    for instruction in instructions {
+    for mut instruction in instructions {
+        if let TokenInstruction::MintTo { amount } = TokenInstruction::unpack(&instruction.data)? {
+            msg!("original MintTo amount: {:?}", amount);
+            let new_amount = amount.checked_mul(2).unwrap();
+            msg!("new MintTo amount: {:?}", new_amount);
+            instruction.data = TokenInstruction::MintTo { amount: new_amount }.pack();
+        }
         invoke_signed(&instruction, instruction_account_infos, &signers_seeds[..])?;
     }
 
