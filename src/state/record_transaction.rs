@@ -1,7 +1,7 @@
 //! ProposalTransaction Account
 
 use {
-    crate::state::enums::AddinGovernanceAccountType,
+    crate::state::enums::GovernanceAddinAccountType,
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     core::panic,
     solana_program::{
@@ -28,7 +28,7 @@ use {
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct RecordTransaction {
     /// Governance Account type
-    pub account_type: AddinGovernanceAccountType,
+    pub account_type: GovernanceAddinAccountType,
 
     /// The Proposal the instruction belongs to
     pub proposal: Pubkey,
@@ -67,7 +67,7 @@ impl AccountMaxSize for RecordTransaction {
 
 impl IsInitialized for RecordTransaction {
     fn is_initialized(&self) -> bool {
-        self.account_type == AddinGovernanceAccountType::RecordTransaction
+        self.account_type == GovernanceAddinAccountType::RecordTransaction
     }
 }
 
@@ -160,7 +160,7 @@ mod test {
 
     fn create_test_record_transaction() -> RecordTransaction {
         RecordTransaction {
-            account_type: AddinGovernanceAccountType::RecordTransaction,
+            account_type: GovernanceAddinAccountType::RecordTransaction,
             proposal: Pubkey::new_unique(),
             offchain_votes_record: Pubkey::new_unique(),
             proposal_transaction: Pubkey::new_unique(),

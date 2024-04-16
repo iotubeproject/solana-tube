@@ -1,14 +1,17 @@
 //! Program processor
 
+mod message_protocol;
 mod process_create_governance;
 mod process_create_proposal;
 mod process_create_realm;
 mod process_deposit_governing_tokens;
 mod process_execute_transaction;
 mod process_insert_transaction;
+mod process_submit_votes;
 mod signature;
 
 use {
+    crate::instruction::GovernanceAddinInstruction,
     borsh::BorshDeserialize,
     process_create_governance::*,
     process_create_proposal::*,
@@ -16,6 +19,7 @@ use {
     process_deposit_governing_tokens::*,
     process_execute_transaction::*,
     process_insert_transaction::*,
+    process_submit_votes::*,
     solana_program::{
         account_info::AccountInfo, entrypoint::ProgramResult, msg, program_error::ProgramError,
         pubkey::Pubkey,
@@ -31,10 +35,20 @@ pub fn process_instruction(
 ) -> ProgramResult {
     msg!("VERSION:{:?}", env!("CARGO_PKG_VERSION"));
 
-    let instruction = GovernanceInstruction::try_from_slice(input).map_err(|_| {
-        msg!("Failed to deserialize instruction data{:?}", input);
-        ProgramError::InvalidInstructionData
-    })?;
+    let instruction = match GovernanceInstruction::try_from_slice(input) {
+        Ok(ins) => ins,
+        Err(_) => {
+            if let Ok(ins_addin) = GovernanceAddinInstruction::try_from_slice(input) {
+                match ins_addin {
+                    GovernanceAddinInstruction::SubmitVotes {} => {
+                        return process_submit_votes(program_id, accounts)
+                    }
+                }
+            }
+            msg!("Failed to deserialize instruction data{:?}", input);
+            return Err(ProgramError::InvalidInstructionData);
+        }
+    };
 
     msg!("GOVERNANCE-INSTRUCTION: {:?}", instruction);
 

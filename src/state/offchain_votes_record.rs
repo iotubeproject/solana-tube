@@ -24,7 +24,7 @@ pub const HASH_BYTES: usize = 32;
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct OffchainVotesRecord {
     /// Record ID
-    pub record_id: [u8; 32],
+    pub record_id: [u8; HASH_BYTES],
 
     /// Governance account type
     pub account_type: GovernanceAccountType,
@@ -98,7 +98,7 @@ pub fn get_offchain_votes_record_data(
 }
 
 /// Returns VoteRecord PDA seeds
-pub fn get_vote_record_address_seeds<'a>(
+pub fn get_offchain_votes_record_address_seeds<'a>(
     proposal: &'a Pubkey,
     record_id: &'a [u8; HASH_BYTES],
 ) -> [&'a [u8]; 3] {
@@ -110,13 +110,13 @@ pub fn get_vote_record_address_seeds<'a>(
 }
 
 /// Returns VoteRecord PDA address
-pub fn get_vote_record_address<'a>(
+pub fn get_offchain_votes_record_address<'a>(
     program_id: &Pubkey,
     proposal: &'a Pubkey,
     record_id: &'a [u8; HASH_BYTES],
 ) -> Pubkey {
     Pubkey::find_program_address(
-        &get_vote_record_address_seeds(proposal, record_id),
+        &get_offchain_votes_record_address_seeds(proposal, record_id),
         program_id,
     )
     .0

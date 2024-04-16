@@ -5,8 +5,8 @@ use solana_program::{
 
 #[derive(Debug)]
 pub struct Data {
-    eth_address: [u8; secp256k1_defs::HASHED_PUBKEY_SERIALIZED_SIZE],
-    message: Vec<u8>,
+    pub eth_address: [u8; secp256k1_defs::HASHED_PUBKEY_SERIALIZED_SIZE],
+    pub message: Vec<u8>,
 }
 
 /// Validate the secp256k1 instruction, and extract `eth_address` and `message`
