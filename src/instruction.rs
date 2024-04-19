@@ -64,13 +64,5 @@ pub enum GovernanceAddinInstruction {
     /// 12. `[]` Optional Max Community Voter Weight Addin Program Id
     /// 13. `[]` Optional Council Voter Weight Addin Program Id
     /// 14. `[]` Optional Max Council Voter Weight Addin Program Id
-    SubmitVotes {
-        // #[allow(dead_code)]
-        // /// UTF-8 encoded Governance Realm name
-        // name: String,
-
-        // #[allow(dead_code)]
-        // /// Realm config args
-        // config_args: RealmConfigArgs,
-    },
+    SubmitVotes {},
 }

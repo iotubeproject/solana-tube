@@ -1,9 +1,11 @@
 //! Program state processor
 
 use {
-    super::signature::secp256k1::secp256k1_verify,
     crate::{
-        processor::message_protocol::{dummy::DummyProtocol, MessageParser},
+        processor::{
+            message_protocol::{dummy::DummyProtocol, MessageParser},
+            signature::ed25519::ed25519_verify,
+        },
         state::{
             enums::GovernanceAddinAccountType,
             offchain_votes_record::{get_offchain_votes_record_address_seeds, OffchainVotesRecord},
@@ -71,9 +73,8 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
     }
 
     // Step1: Validate the signatures and extract validated msgs
-    let raw_data = secp256k1_verify(&instructions_sysvar_account)?;
-    msg!("secp256k1_verify: {:?}", raw_data);
-    // TODO: change with ed25519
+    let raw_data = ed25519_verify(&instructions_sysvar_account)?;
+    msg!("ed25519_verify: {:?}", raw_data);
     let msgs = raw_data
         .iter()
         .map(|data| data.message.clone())
@@ -82,7 +83,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
 
     // Step2: Tally the votes(see impl in cast_votes)
     // check known pubkey and its msg data
-    let votes_auth = vec![];
+    let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();
     let votes = message_parser.votes()?;
 
     let mut proposal_data = get_proposal_data_for_governance_and_governing_mint(
