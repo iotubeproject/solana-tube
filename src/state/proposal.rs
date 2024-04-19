@@ -22,7 +22,7 @@ use {
             },
             governance::GovernanceConfig,
             legacy::ProposalV1,
-            proposal::{MultiChoiceType, VoteType},
+            proposal::{MultiChoiceType, OptionVoteResult, VoteType},
             proposal_transaction::ProposalTransactionV2,
             realm::RealmV2,
             realm_config::RealmConfigAccount,
@@ -34,19 +34,6 @@ use {
     spl_governance_tools::account::{get_account_data, get_account_type, AccountMaxSize},
     std::{cmp::Ordering, slice::Iter},
 };
-
-/// Proposal option vote result
-#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
-pub enum OptionVoteResult {
-    /// Vote on the option is not resolved yet
-    None,
-
-    /// Vote on the option is completed and the option passed
-    Succeeded,
-
-    /// Vote on the option is completed and the option was defeated
-    Defeated,
-}
 
 /// Proposal Option
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
@@ -77,7 +64,7 @@ pub struct ProposalOffchainVotesRecord {
     pub vote_records_count: u64,
 
     /// The address of the last vote record
-    pub last_vote_record_account: Pubkey,
+    pub last_vote_record_account: Option<Pubkey>,
 }
 
 /// Governance Proposal
@@ -197,12 +184,15 @@ pub struct ProposalV2 {
 
     /// The total weight of Veto votes
     pub veto_vote_weight: u64,
+
+    /// Off-chain votes record
+    pub offchain_votes_record: ProposalOffchainVotesRecord,
 }
 
 impl AccountMaxSize for ProposalV2 {
     fn get_max_size(&self) -> Option<usize> {
         let options_size: usize = self.options.iter().map(|o| o.label.len() + 19).sum();
-        Some(self.name.len() + self.description_link.len() + options_size + 297)
+        Some(self.name.len() + self.description_link.len() + options_size + 297 + 40)
     }
 }
 
@@ -500,7 +490,7 @@ impl ProposalV2 {
 
     /// Calculates max voter weight for given mint supply and realm config
     fn get_max_voter_weight_from_mint_supply(
-        &mut self,
+        &self,
         realm_data: &RealmV2,
         governing_token_mint: &Pubkey,
         governing_token_mint_supply: u64,
@@ -555,42 +545,11 @@ impl ProposalV2 {
     /// supply or 2) max voter weight if configured for the token mint
     #[allow(clippy::too_many_arguments)]
     pub fn resolve_max_voter_weight(
-        &mut self,
-        account_info_iter: &mut Iter<AccountInfo>,
-        realm: &Pubkey,
+        &self,
         realm_data: &RealmV2,
-        realm_config_data: &RealmConfigAccount,
         vote_governing_token_mint_info: &AccountInfo,
         vote_kind: &VoteKind,
     ) -> Result<u64, ProgramError> {
-        // if the Realm is configured to use max voter weight for the given voting
-        // governing_token_mint then use the externally provided max_voter_weight
-        // instead of the supply based max
-        if let Some(max_voter_weight_addin) = realm_config_data
-            .get_token_config(realm_data, vote_governing_token_mint_info.key)?
-            .max_voter_weight_addin
-        {
-            let max_voter_weight_record_info = next_account_info(account_info_iter)?;
-
-            let max_voter_weight_record_data =
-                get_max_voter_weight_record_data_for_realm_and_governing_token_mint(
-                    &max_voter_weight_addin,
-                    max_voter_weight_record_info,
-                    realm,
-                    vote_governing_token_mint_info.key,
-                )?;
-
-            assert_is_valid_max_voter_weight(&max_voter_weight_record_data)?;
-
-            // When the max voter weight addin is used it's possible it can be inaccurate
-            // and we can have more votes then the max provided by the addin and
-            // we have to adjust it to whatever result is higher
-            return Ok(self.coerce_max_voter_weight(
-                max_voter_weight_record_data.max_voter_weight,
-                vote_kind,
-            ));
-        }
-
         let vote_governing_token_mint_supply =
             get_spl_token_mint_supply(vote_governing_token_mint_info)?;
 
@@ -1000,7 +959,7 @@ impl ProposalV2 {
 
 /// Converts given vote threshold (ex. in percentages) to absolute vote weight
 /// and returns the min weight required for a proposal option to pass
-fn get_min_vote_threshold_weight(
+pub fn get_min_vote_threshold_weight(
     vote_threshold: &VoteThreshold,
     max_voter_weight: u64,
 ) -> Result<u64, ProgramError> {
@@ -1085,6 +1044,10 @@ pub fn get_proposal_data(
             description_link: proposal_data_v1.description_link,
             reserved: [0; 64],
             reserved1: 0,
+            offchain_votes_record: ProposalOffchainVotesRecord {
+                vote_records_count: 0,
+                last_vote_record_account: None,
+            },
         });
     }
 
@@ -1243,6 +1206,11 @@ mod test {
 
             reserved: [0; 64],
             reserved1: 0,
+
+            offchain_votes_record: ProposalOffchainVotesRecord {
+                vote_records_count: 0,
+                last_vote_record_account: None,
+            },
         }
     }
 

@@ -2,7 +2,7 @@
 
 use {
     super::signature::secp256k1::{secp256k1_verify, Data},
-    crate::state::proposal::{get_proposal_data_for_governance, OptionVoteResult},
+    crate::state::proposal::get_proposal_data_for_governance,
     solana_program::{
         account_info::{next_account_info, AccountInfo},
         clock::Clock,
@@ -19,6 +19,7 @@ use {
         enums::{ProposalState, TransactionExecutionStatus},
         governance::get_governance_data,
         native_treasury::get_native_treasury_address_seeds,
+        proposal::{OptionVoteResult, VoteType},
         proposal_transaction::get_proposal_transaction_data_for_proposal,
     },
     spl_token::{

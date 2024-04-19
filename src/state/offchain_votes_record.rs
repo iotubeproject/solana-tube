@@ -1,16 +1,15 @@
 //! Proposal Vote Record Account
 
 use {
-    crate::state::proposal::{OptionVoteResult, ProposalV2},
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     solana_program::{
         account_info::AccountInfo, clock::UnixTimestamp, program_error::ProgramError,
         program_pack::IsInitialized, pubkey::Pubkey,
     },
     spl_governance::{
-        error::GovernanceError,
         state::{
-            enums::GovernanceAccountType, realm::RealmV2, token_owner_record::TokenOwnerRecordV2,
+            enums::{GovernanceAccountType, VoteThreshold},
+            proposal::OptionVoteResult,
             vote_record::Vote,
         },
         PROGRAM_AUTHORITY_SEED,
@@ -23,11 +22,11 @@ pub const HASH_BYTES: usize = 32;
 /// Proposal VoteRecord
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct OffchainVotesRecord {
-    /// Record ID
-    pub record_id: [u8; HASH_BYTES],
-
     /// Governance account type
     pub account_type: GovernanceAccountType,
+
+    /// Record ID
+    pub record_id: [u8; HASH_BYTES],
 
     /// Proposal account
     pub proposal: Pubkey,
@@ -43,6 +42,21 @@ pub struct OffchainVotesRecord {
     /// Voters' votes
     pub votes: Vec<Vote>,
 
+    /// The max vote weight for the Governing Token mint at the time Proposal
+    /// was decided.
+    /// It's used to show correct vote results for historical proposals in
+    /// cases when the mint supply or max weight source changed after vote was
+    /// completed.
+    pub max_vote_weight: u64,
+
+    /// The vote threshold at the time Proposal was decided
+    /// It's used to show correct vote results for historical proposals in cases
+    /// when the threshold was changed for governance config after vote was
+    /// completed.
+    /// TODO: Use this field to override the threshold from parent Governance
+    /// (only higher value possible)
+    pub vote_threshold: VoteThreshold,
+
     /// Vote result for the option
     pub vote_result: OptionVoteResult,
 
@@ -50,16 +64,16 @@ pub struct OffchainVotesRecord {
     pub vote_record_index: u64,
 
     /// Previous vote record account
-    pub prev_vote_record_account: Pubkey,
+    pub prev_vote_record_account: Option<Pubkey>,
 
-    /// Recorded at flag
-    pub recorded_at: UnixTimestamp,
+    /// Voting completed at flag
+    pub voting_completed_at: UnixTimestamp,
 }
 
 impl AccountMaxSize for OffchainVotesRecord {
     fn get_max_size(&self) -> Option<usize> {
         Some(
-            32 + 1
+            1 + 32
                 + 32
                 + 4
                 + self.governing_token_owners.len() * 32
@@ -67,6 +81,8 @@ impl AccountMaxSize for OffchainVotesRecord {
                 + self.voter_weights.len() * 8
                 + 4
                 + self.votes.len() * 24
+                + 8
+                + 2
                 + 1
                 + 8
                 + 32

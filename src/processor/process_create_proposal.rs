@@ -2,7 +2,7 @@
 
 use {
     crate::state::proposal::{
-        assert_valid_proposal_options, get_proposal_address_seeds, OptionVoteResult,
+        assert_valid_proposal_options, get_proposal_address_seeds, ProposalOffchainVotesRecord,
         ProposalOption, ProposalV2,
     },
     solana_program::{
@@ -18,8 +18,7 @@ use {
         state::{
             enums::{GovernanceAccountType, InstructionExecutionFlags, ProposalState},
             governance::get_governance_data_for_realm,
-            proposal::VoteType,
-            // proposal_deposit::{get_proposal_deposit_address_seeds, ProposalDeposit},
+            proposal::{OptionVoteResult, VoteType},
             realm::get_realm_data_for_governing_token_mint,
             realm_config::get_realm_config_data_for_realm,
             token_owner_record::get_token_owner_record_data_for_realm,
@@ -167,6 +166,11 @@ pub fn process_create_proposal(
 
         reserved: [0; 64],
         reserved1: 0,
+
+        offchain_votes_record: ProposalOffchainVotesRecord {
+            vote_records_count: 0,
+            last_vote_record_account: None,
+        },
     };
 
     create_and_serialize_account_signed::<ProposalV2>(

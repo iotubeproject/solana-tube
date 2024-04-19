@@ -1,23 +1,43 @@
 use {
     super::MessageParser,
-    solana_program::{hash::hash, instruction::Instruction, msg, program_error::ProgramError},
-    spl_governance::state::proposal_transaction::*,
+    solana_program::{hash::hash, msg, program_error::ProgramError},
+    spl_governance::state::{
+        proposal_transaction::InstructionData,
+        vote_record::{Vote, VoteChoice},
+    },
     spl_token::instruction::TokenInstruction,
 };
 
 pub struct DummyProtocol {
-    raw: Vec<u8>,
+    raw: Vec<Vec<u8>>,
 }
 
 impl MessageParser for DummyProtocol {
-    fn new(message: &Vec<u8>) -> Self {
+    fn new(message: &Vec<Vec<u8>>) -> Self {
         DummyProtocol {
             raw: message.clone(),
         }
     }
 
+    fn votes(&self) -> Result<Vec<Vote>, ProgramError> {
+        if let Some(first) = self.raw.get(0) {
+            if !self.raw.iter().all(|v| v == first) {
+                return Err(ProgramError::InvalidAccountData);
+            };
+            return Ok(vec![
+                Vote::Approve(vec![VoteChoice {
+                    rank: 0,
+                    weight_percentage: 100,
+                },]);
+                self.raw.len()
+            ]);
+        } else {
+            return Ok(vec![]);
+        }
+    }
+
     fn record_id(&self) -> Result<[u8; 32], ProgramError> {
-        Ok(hash(&self.raw).to_bytes())
+        Ok(hash(&self.raw[0]).to_bytes())
     }
 
     fn instructions_from_proposal(

@@ -3,11 +3,13 @@ pub mod iotube;
 
 use {
     solana_program::program_error::ProgramError,
-    spl_governance::state::proposal_transaction::InstructionData,
+    spl_governance::state::{proposal_transaction::InstructionData, vote_record::Vote},
 };
 
 pub trait MessageParser {
-    fn new(message: &Vec<u8>) -> Self;
+    fn new(message: &Vec<Vec<u8>>) -> Self;
+
+    fn votes(&self) -> Result<Vec<Vote>, ProgramError>;
 
     fn record_id(&self) -> Result<[u8; 32], ProgramError>;
 
