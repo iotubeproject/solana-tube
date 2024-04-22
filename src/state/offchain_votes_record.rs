@@ -3,7 +3,7 @@
 use {
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     solana_program::{
-        account_info::AccountInfo, clock::UnixTimestamp, program_error::ProgramError,
+        account_info::AccountInfo, clock::UnixTimestamp, msg, program_error::ProgramError,
         program_pack::IsInitialized, pubkey::Pubkey,
     },
     spl_governance::{
@@ -111,6 +111,19 @@ pub fn get_offchain_votes_record_data(
     offchain_votes_record_info: &AccountInfo,
 ) -> Result<OffchainVotesRecord, ProgramError> {
     get_account_data::<OffchainVotesRecord>(program_id, offchain_votes_record_info)
+}
+
+pub fn get_offchain_votes_record_data_for_proposal(
+    program_id: &Pubkey,
+    offchain_votes_record_info: &AccountInfo,
+    proposal: &Pubkey,
+) -> Result<OffchainVotesRecord, ProgramError> {
+    let offchain_votes_record_data =
+        get_offchain_votes_record_data(program_id, offchain_votes_record_info)?;
+    if offchain_votes_record_data.proposal != *proposal {
+        return Err(ProgramError::InvalidArgument);
+    }
+    Ok(offchain_votes_record_data)
 }
 
 /// Returns VoteRecord PDA seeds

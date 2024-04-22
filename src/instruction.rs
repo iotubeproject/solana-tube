@@ -37,7 +37,6 @@ use {
 
 /// Instructions supported by the Governance program
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
-#[allow(clippy::large_enum_variant)]
 pub enum GovernanceAddinInstruction {
     /// Creates Governance Realm account which aggregates governances for given
     /// Community Mint and optional Council Mint

@@ -110,7 +110,6 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
 
     // Step3: Generate record_id from msg (protocol related)
     let record_id = message_parser.record_id()?;
-    msg!("record_id: {:?}", record_id);
 
     // Step4: Create new vote record account and update proposal
     let offchain_votes_record_data = OffchainVotesRecord {
@@ -134,6 +133,11 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         .unwrap();
     proposal_data.offchain_votes_record.last_vote_record_account =
         Some(*offchain_votes_record_info.key);
+    msg!(
+        "offchain_votes_record_data: {:?}",
+        offchain_votes_record_data
+    );
+    msg!("proposal_data: {:?}", proposal_data);
     create_and_serialize_account_signed::<OffchainVotesRecord>(
         payer_info,
         offchain_votes_record_info,
@@ -169,6 +173,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         executed_at: None,
         execution_status: TransactionExecutionStatus::None,
     };
+    msg!("record_transaction_data: {:?}", record_transaction_data);
     create_and_serialize_account_signed::<RecordTransaction>(
         payer_info,
         record_transaction_info,
@@ -225,6 +230,13 @@ fn tally_offchain_votes(
             )
         })
         .collect::<Result<Vec<_>, _>>()?;
+
+    msg!(
+        "voters_token_owner_records: {:?}",
+        voters_token_owner_records
+    );
+    msg!("votes_authorites: {:?}", votes_authorites);
+
     if voters_token_owner_records.len() != votes_authorites.len()
         || !voters_token_owner_records
             .iter()

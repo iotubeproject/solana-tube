@@ -1,6 +1,7 @@
 //! ProposalTransaction Account
 
 use {
+    super::offchain_votes_record::OffchainVotesRecord,
     crate::state::enums::GovernanceAddinAccountType,
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     core::panic,
@@ -15,13 +16,12 @@ use {
     spl_governance::{
         error::GovernanceError,
         state::{
-            enums::{GovernanceAccountType, TransactionExecutionStatus},
-            legacy::ProposalInstructionV1,
+            enums::TransactionExecutionStatus, proposal::OptionVoteResult,
             proposal_transaction::InstructionData,
         },
         PROGRAM_AUTHORITY_SEED,
     },
-    spl_governance_tools::account::{get_account_data, get_account_type, AccountMaxSize},
+    spl_governance_tools::account::{get_account_data, AccountMaxSize},
 };
 
 /// Account for an instruction to be executed for Proposal
@@ -77,6 +77,19 @@ impl RecordTransaction {
         borsh::to_writer(writer, &self)?;
         Ok(())
     }
+
+    pub fn assert_can_execute_transaction(
+        &self,
+        votes_record_data: &OffchainVotesRecord,
+    ) -> Result<(), ProgramError> {
+        if self.execution_status != TransactionExecutionStatus::None || self.executed_at.is_some() {
+            return Err(GovernanceError::TransactionAlreadyExecuted.into());
+        }
+        if votes_record_data.vote_result != OptionVoteResult::Succeeded {
+            return Err(GovernanceError::CannotExecuteDefeatedOption.into());
+        }
+        Ok(())
+    }
 }
 
 /// Returns RecordTransaction PDA seeds
@@ -110,6 +123,18 @@ pub fn get_record_transaction_data(
     record_transaction_info: &AccountInfo,
 ) -> Result<RecordTransaction, ProgramError> {
     get_account_data::<RecordTransaction>(program_id, record_transaction_info)
+}
+
+pub fn get_record_transaction_data_for_votes_record(
+    program_id: &Pubkey,
+    record_transaction_info: &AccountInfo,
+    offchain_votes_record: &Pubkey,
+) -> Result<RecordTransaction, ProgramError> {
+    let record_transaction_data = get_record_transaction_data(program_id, record_transaction_info)?;
+    if record_transaction_data.offchain_votes_record != *offchain_votes_record {
+        return Err(ProgramError::InvalidArgument);
+    }
+    Ok(record_transaction_data)
 }
 
 ///  Deserializes and returns ProposalTransaction account and checks it belongs

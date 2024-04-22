@@ -30,7 +30,7 @@ integration-test:
 	cargo test-bpf
 
 airdrop:
-	solana airdrop 3
+	solana airdrop 5
 
 deploy: airdrop
 	solana program deploy ./target/deploy/solana_gov.so

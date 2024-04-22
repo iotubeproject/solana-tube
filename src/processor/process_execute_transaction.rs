@@ -1,8 +1,11 @@
 //! Program state processor
 
 use {
-    super::signature::secp256k1::{secp256k1_verify, Data},
-    crate::state::proposal::get_proposal_data_for_governance,
+    crate::state::{
+        offchain_votes_record::get_offchain_votes_record_data_for_proposal,
+        proposal::get_proposal_data_for_governance,
+        record_transaction::get_record_transaction_data_for_votes_record,
+    },
     solana_program::{
         account_info::{next_account_info, AccountInfo},
         clock::Clock,
@@ -10,59 +13,40 @@ use {
         instruction::Instruction,
         msg,
         program::invoke_signed,
-        program_error::ProgramError,
-        program_pack::*,
         pubkey::Pubkey,
         sysvar::Sysvar,
     },
-    spl_governance::state::{
-        enums::{ProposalState, TransactionExecutionStatus},
-        governance::get_governance_data,
-        native_treasury::get_native_treasury_address_seeds,
-        proposal::{OptionVoteResult, VoteType},
-        proposal_transaction::get_proposal_transaction_data_for_proposal,
-    },
-    spl_token::{
-        instruction::TokenInstruction,
-        state::{Account, Mint},
-        ID as TOKEN_PROGRAM_ID,
-    },
+    spl_governance::state::{enums::TransactionExecutionStatus, governance::get_governance_data},
 };
 
 /// Processes ExecuteTransaction instruction
 pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
 
-    let instructions_sysvar_account = next_account_info(account_info_iter)?; // -1
     let governance_info = next_account_info(account_info_iter)?; // 0
     let proposal_info = next_account_info(account_info_iter)?; // 1
-    let proposal_transaction_info = next_account_info(account_info_iter)?; // 2
+    let vote_record_info = next_account_info(account_info_iter)?; // 2
+    let record_transaction_info = next_account_info(account_info_iter)?; // 3
 
     let clock = Clock::get()?;
 
     let governance_data = get_governance_data(program_id, governance_info)?;
-
-    // TODO: this is a temp verification
-    let msgs = secp256k1_verify(&instructions_sysvar_account)?;
-    msg!("secp256k1_verify: {:?}", msgs);
-
-    let mut proposal_data =
-        get_proposal_data_for_governance(program_id, proposal_info, governance_info.key)?;
-
-    let mut proposal_transaction_data = get_proposal_transaction_data_for_proposal(
+    let _ = get_proposal_data_for_governance(program_id, proposal_info, governance_info.key)?;
+    let offchain_votes_record_data = get_offchain_votes_record_data_for_proposal(
         program_id,
-        proposal_transaction_info,
+        vote_record_info,
         proposal_info.key,
     )?;
+    let mut record_transaction_data = get_record_transaction_data_for_votes_record(
+        program_id,
+        record_transaction_info,
+        vote_record_info.key,
+    )?;
 
-    // Proposal is always executed in the POC
-    // TODO: Enable Proposal after POC
-
-    // proposal_data
-    //     .assert_can_execute_transaction(&proposal_transaction_data, clock.unix_timestamp)?;
+    record_transaction_data.assert_can_execute_transaction(&offchain_votes_record_data)?;
 
     // Execute instruction with Governance PDA as signer
-    let instructions = proposal_transaction_data
+    let instructions = record_transaction_data
         .instructions
         .iter()
         .map(Instruction::from);
@@ -85,32 +69,14 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
 
     signers_seeds.push(&governance_seeds[..]);
 
-    // TODO: Enable Proposal after POC
-    // proposal_data.executing_at = Some(clock.unix_timestamp);
-    // proposal_data.state = ProposalState::Executing;
-
-    for mut instruction in instructions {
-        if let TokenInstruction::MintTo { amount } = TokenInstruction::unpack(&instruction.data)? {
-            msg!("original MintTo amount: {:?}", amount);
-            let new_amount = amount.checked_mul(2).unwrap();
-            msg!("new MintTo amount: {:?}", new_amount);
-            instruction.data = TokenInstruction::MintTo { amount: new_amount }.pack();
-        }
+    for instruction in instructions {
         invoke_signed(&instruction, instruction_account_infos, &signers_seeds[..])?;
     }
 
     // Update proposal and instruction accounts
-
-    // TODO: Enable Proposal after POC
-    // let option = &mut proposal_data.options[proposal_transaction_data.option_index as usize];
-    // option.transactions_executed_count = option.transactions_executed_count.checked_add(1).unwrap();
-    // proposal_data.closed_at = Some(clock.unix_timestamp);
-    // proposal_data.state = ProposalState::Completed;
-    // proposal_data.serialize(&mut proposal_info.data.borrow_mut()[..])?;
-
-    proposal_transaction_data.executed_at = Some(clock.unix_timestamp);
-    proposal_transaction_data.execution_status = TransactionExecutionStatus::Success;
-    proposal_transaction_data.serialize(&mut proposal_transaction_info.data.borrow_mut()[..])?;
+    record_transaction_data.executed_at = Some(clock.unix_timestamp);
+    record_transaction_data.execution_status = TransactionExecutionStatus::Success;
+    record_transaction_data.serialize(&mut record_transaction_info.data.borrow_mut()[..])?;
 
     Ok(())
 }
