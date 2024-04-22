@@ -6,8 +6,8 @@ use {
     spl_governance::state::{proposal_transaction::InstructionData, vote_record::Vote},
 };
 
-pub trait MessageParser {
-    fn new(message: &Vec<Vec<u8>>) -> Self;
+pub trait MessageParser<'a> {
+    fn new(message: &'a Vec<&Vec<u8>>) -> Self;
 
     fn votes(&self) -> Result<Vec<Vote>, ProgramError>;
 

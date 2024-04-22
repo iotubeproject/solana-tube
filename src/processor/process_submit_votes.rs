@@ -48,19 +48,16 @@ use {
 pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
 
-    let instructions_sysvar_account = next_account_info(account_info_iter)?; // -3
-
-    let realm_info = next_account_info(account_info_iter)?; // -2
-    let vote_governing_token_mint_info = next_account_info(account_info_iter)?; // -1
-    let governance_info = next_account_info(account_info_iter)?; // 0
-    let proposal_info = next_account_info(account_info_iter)?; // 1
-    let proposal_transaction_info = next_account_info(account_info_iter)?; // 2
-
-    let offchain_votes_record_info = next_account_info(account_info_iter)?; // 3
-    let record_transaction_info = next_account_info(account_info_iter)?; // 3
-
-    let payer_info = next_account_info(account_info_iter)?; // 4
-    let system_info = next_account_info(account_info_iter)?; // 5
+    let instructions_sysvar_account = next_account_info(account_info_iter)?; // 0
+    let realm_info = next_account_info(account_info_iter)?; // 1
+    let vote_governing_token_mint_info = next_account_info(account_info_iter)?; // 2
+    let governance_info = next_account_info(account_info_iter)?; // 3
+    let proposal_info = next_account_info(account_info_iter)?; // 4
+    let proposal_transaction_info = next_account_info(account_info_iter)?; // 5
+    let offchain_votes_record_info = next_account_info(account_info_iter)?; // 6
+    let record_transaction_info = next_account_info(account_info_iter)?; // 7
+    let payer_info = next_account_info(account_info_iter)?; // 8
+    let system_info = next_account_info(account_info_iter)?; // 9
 
     let clock = Clock::get()?;
 
@@ -77,7 +74,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
     msg!("ed25519_verify: {:?}", raw_data);
     let msgs = raw_data
         .iter()
-        .map(|data| data.message.clone())
+        .map(|data| &data.message)
         .collect::<Vec<_>>();
     let message_parser = DummyProtocol::new(&msgs);
 

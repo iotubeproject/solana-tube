@@ -8,15 +8,13 @@ use {
     spl_token::instruction::TokenInstruction,
 };
 
-pub struct DummyProtocol {
-    raw: Vec<Vec<u8>>,
+pub struct DummyProtocol<'a> {
+    raw: &'a Vec<&'a Vec<u8>>,
 }
 
-impl MessageParser for DummyProtocol {
-    fn new(message: &Vec<Vec<u8>>) -> Self {
-        DummyProtocol {
-            raw: message.clone(),
-        }
+impl<'a> MessageParser<'a> for DummyProtocol<'a> {
+    fn new(message: &'a Vec<&Vec<u8>>) -> Self {
+        DummyProtocol { raw: message }
     }
 
     fn votes(&self) -> Result<Vec<Vote>, ProgramError> {
