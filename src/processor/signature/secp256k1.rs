@@ -11,6 +11,7 @@ pub struct Data {
 
 /// Validate the secp256k1 instruction, and extract `eth_address` and `message`
 /// from the verified data
+#[allow(dead_code)]
 pub fn secp256k1_verify(
     instructions_sysvar_account: &AccountInfo,
 ) -> Result<Vec<Data>, ProgramError> {

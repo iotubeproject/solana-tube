@@ -4,11 +4,9 @@ use {
     super::offchain_votes_record::OffchainVotesRecord,
     crate::state::enums::GovernanceAddinAccountType,
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
-    core::panic,
     solana_program::{
         account_info::AccountInfo,
         clock::UnixTimestamp,
-        instruction::{AccountMeta, Instruction},
         program_error::ProgramError,
         program_pack::IsInitialized,
         pubkey::Pubkey,

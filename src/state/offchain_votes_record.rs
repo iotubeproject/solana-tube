@@ -3,7 +3,7 @@
 use {
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     solana_program::{
-        account_info::AccountInfo, clock::UnixTimestamp, msg, program_error::ProgramError,
+        account_info::AccountInfo, clock::UnixTimestamp, program_error::ProgramError,
         program_pack::IsInitialized, pubkey::Pubkey,
     },
     spl_governance::{

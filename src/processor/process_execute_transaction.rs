@@ -11,7 +11,6 @@ use {
         clock::Clock,
         entrypoint::ProgramResult,
         instruction::Instruction,
-        msg,
         program::invoke_signed,
         pubkey::Pubkey,
         sysvar::Sysvar,

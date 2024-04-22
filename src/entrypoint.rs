@@ -1,7 +1,7 @@
 use {
     crate::processor,
     solana_program::{
-        account_info::AccountInfo, entrypoint::ProgramResult, msg,
+        account_info::AccountInfo, entrypoint::ProgramResult,
         program_error::PrintProgramError, pubkey::Pubkey,
     },
     spl_governance::error::GovernanceError,
