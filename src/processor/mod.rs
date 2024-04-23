@@ -33,8 +33,6 @@ pub fn process_instruction(
     accounts: &[AccountInfo],
     input: &[u8],
 ) -> ProgramResult {
-    msg!("VERSION:{:?}", env!("CARGO_PKG_VERSION"));
-
     let instruction = match GovernanceInstruction::try_from_slice(input) {
         Ok(ins) => ins,
         Err(_) => {

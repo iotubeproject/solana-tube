@@ -101,6 +101,15 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         &votes,
     )?;
 
+    if vote_result == OptionVoteResult::None {
+        msg!("Insufficient votes from offchain");
+        msg!("voter_weights: {:?}", voter_weights);
+        msg!("max_vote_weight: {:?}", max_vote_weight);
+        msg!("vote_threshold: {:?}", vote_threshold);
+        msg!("vote_result: {:?}", vote_result);
+        return Err(ProgramError::InvalidInstructionData);
+    }
+
     // Step3: Generate record_id from msg (protocol related)
     let record_id = message_parser.record_id()?;
 

@@ -15,7 +15,13 @@ use {
         pubkey::Pubkey,
         sysvar::Sysvar,
     },
-    spl_governance::state::{enums::TransactionExecutionStatus, governance::get_governance_data},
+    spl_governance::{
+        error::GovernanceError,
+        state::{
+            enums::{ProposalState, TransactionExecutionStatus},
+            governance::get_governance_data,
+        },
+    },
 };
 
 /// Processes ExecuteTransaction instruction
@@ -30,7 +36,8 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
     let clock = Clock::get()?;
 
     let governance_data = get_governance_data(program_id, governance_info)?;
-    let _ = get_proposal_data_for_governance(program_id, proposal_info, governance_info.key)?;
+    let proposal_data =
+        get_proposal_data_for_governance(program_id, proposal_info, governance_info.key)?;
     let offchain_votes_record_data = get_offchain_votes_record_data_for_proposal(
         program_id,
         vote_record_info,
@@ -41,6 +48,11 @@ pub fn process_execute_transaction(program_id: &Pubkey, accounts: &[AccountInfo]
         record_transaction_info,
         vote_record_info.key,
     )?;
+
+    // The record is assumed to be invalid when the proposal is cancelled
+    if proposal_data.state != ProposalState::Voting {
+        return Err(GovernanceError::InvalidStateCannotExecuteTransaction.into());
+    }
 
     record_transaction_data.assert_can_execute_transaction(&offchain_votes_record_data)?;
 
