@@ -1,7 +1,7 @@
 use {
     super::MessageParser,
     borsh::{BorshDeserialize, BorshSerialize},
-    solana_program::{hash::hash, program_error::ProgramError, pubkey::Pubkey},
+    solana_program::{keccak::hash, program_error::ProgramError, pubkey::Pubkey},
     spl_governance::state::{
         proposal_transaction::InstructionData,
         vote_record::{Vote, VoteChoice},
@@ -29,8 +29,8 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     }
 
     fn record_id(&self) -> Result<[u8; 32], ProgramError> {
-        // TODO: keccak256 hash
-        return Ok(hash(&self.raw[0]).to_bytes());
+        let payload = Payload::try_from_slice(&self.raw[0])?;
+        return Ok(hash(&payload.bytes()).to_bytes());
     }
 
     fn instructions_from_proposal(
@@ -58,6 +58,7 @@ impl<'a> IoTubeProtocol<'a> {
             if !self.raw.iter().all(|v| v == first) {
                 return Err(ProgramError::InvalidAccountData);
             };
+            Payload::try_from_slice(first.as_slice())?;
             return Ok(());
         } else {
             return Err(ProgramError::InvalidAccountData);
@@ -65,10 +66,13 @@ impl<'a> IoTubeProtocol<'a> {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize)]
-pub struct Payload {
+const ETH_ADDRESS_SIZE: usize = 20;
+
+#[derive(Clone, Debug, BorshDeserialize, BorshSerialize)]
+struct Payload {
     pub program_id: Pubkey,
-    // pub votes: Vec<Vote>,
+    pub cashier: [u8; ETH_ADDRESS_SIZE],
+    pub co_token: Pubkey,
     pub index: u64,
     pub sender: String,
     pub recipient: Pubkey,
@@ -78,8 +82,13 @@ pub struct Payload {
 impl Payload {
     fn bytes(&self) -> Vec<u8> {
         [
-            self.program_id.try_to_vec().unwrap(),
-            self.amount.try_to_vec().unwrap(),
+            self.program_id.to_bytes().to_vec(),
+            self.cashier.to_vec(),
+            self.co_token.to_bytes().to_vec(),
+            self.index.to_le_bytes().to_vec(),
+            self.sender.as_bytes().to_vec(),
+            self.recipient.to_bytes().to_vec(),
+            self.amount.to_le_bytes().to_vec(),
         ]
         .concat()
     }
