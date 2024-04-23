@@ -5,31 +5,22 @@ use borsh::{BorshDeserialize, BorshSchema, BorshSerialize};
 /// Instructions supported by the Governance program
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub enum GovernanceAddinInstruction {
-    // TODO update doc
-    /// Creates Governance Realm account which aggregates governances for given
-    /// Community Mint and optional Council Mint
+    ///  Submit offchain voting record to cast votes on a Proposal
+    ///  By doing so you indicate you approve or disapprove of running
+    ///  the Proposal set of transactions  If you tip the consensus
+    ///  then the transactions can begin to be run  
     ///
-    /// 0. `[writable]` Governance Realm account.
-    ///     * PDA seeds:['governance',name]
-    /// 1. `[]` Realm authority
-    /// 2. `[]` Community Token Mint
-    /// 3. `[writable]` Community Token Holding account.
-    ///     * PDA seeds: ['governance',realm,community_mint]
-    ///     The account will be created with the Realm PDA as its owner
-    /// 4. `[signer]` Payer
-    /// 5. `[]` System
-    /// 6. `[]` SPL Token
-    /// 7. `[]` Sysvar Rent
-    /// 8. `[]` Council Token Mint - optional
-    /// 9. `[writable]` Council Token Holding account - optional unless council
-    ///    is used.
-    ///     * PDA seeds: ['governance',realm,council_mint]
-    ///     The account will be created with the Realm PDA as its owner
-    /// 10. `[writable]` RealmConfig account.
-    ///     * PDA seeds: ['realm-config', realm]
-    /// 11. `[]` Optional Community Voter Weight Addin Program Id
-    /// 12. `[]` Optional Max Community Voter Weight Addin Program Id
-    /// 13. `[]` Optional Council Voter Weight Addin Program Id
-    /// 14. `[]` Optional Max Council Voter Weight Addin Program Id
+    ///   0. `[]` SYSVAR account
+    ///   1. `[]` Realm account
+    ///   2. `[]` The Governing Token Mint which is used to cast the vote
+    ///      (vote_governing_token_mint).
+    ///   3. `[]` Governance account
+    ///   4. `[writable]` Proposal account
+    ///   5. `[]` ProposalTransaction account
+    ///   6. `[writable]` Offchain VoteRecord account
+    ///   7. `[writable]` Record Transaction account
+    ///   8. `[signer]` Payer
+    ///   9. `[]` System program
+    ///   10+ Any extra accounts that are part of TokenOwnerRecord of the voter, in order
     SubmitVotes {},
 }

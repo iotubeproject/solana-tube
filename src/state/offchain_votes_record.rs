@@ -1,17 +1,14 @@
 //! Proposal Vote Record Account
 
 use {
+    super::enums::GovernanceAddinAccountType,
     borsh::{maybestd::io::Write, BorshDeserialize, BorshSchema, BorshSerialize},
     solana_program::{
         account_info::AccountInfo, clock::UnixTimestamp, program_error::ProgramError,
         program_pack::IsInitialized, pubkey::Pubkey,
     },
     spl_governance::{
-        state::{
-            enums::{GovernanceAccountType, VoteThreshold},
-            proposal::OptionVoteResult,
-            vote_record::Vote,
-        },
+        state::{enums::VoteThreshold, proposal::OptionVoteResult, vote_record::Vote},
         PROGRAM_AUTHORITY_SEED,
     },
     spl_governance_tools::account::{get_account_data, AccountMaxSize},
@@ -23,7 +20,7 @@ pub const HASH_BYTES: usize = 32;
 #[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize, BorshSchema)]
 pub struct OffchainVotesRecord {
     /// Governance account type
-    pub account_type: GovernanceAccountType,
+    pub account_type: GovernanceAddinAccountType,
 
     /// Record ID
     pub record_id: [u8; HASH_BYTES],
@@ -93,7 +90,7 @@ impl AccountMaxSize for OffchainVotesRecord {
 
 impl IsInitialized for OffchainVotesRecord {
     fn is_initialized(&self) -> bool {
-        self.account_type == GovernanceAccountType::VoteRecordV2
+        self.account_type == GovernanceAddinAccountType::OffchainVotesRecord
     }
 }
 impl OffchainVotesRecord {

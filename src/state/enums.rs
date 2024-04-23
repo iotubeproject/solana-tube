@@ -11,5 +11,7 @@ pub enum GovernanceAddinAccountType {
 
     /// RecordTransaction account which holds instructions to execute for
     RecordTransaction,
-    // TODO add offchain vote record
+
+    /// OffchainVotesRecord account which holds the offchain votes casted by the voters
+    OffchainVotesRecord,
 }

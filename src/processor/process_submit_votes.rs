@@ -29,10 +29,7 @@ use {
     spl_governance::{
         error::GovernanceError,
         state::{
-            enums::{
-                GovernanceAccountType, ProposalState, TransactionExecutionStatus, VoteThreshold,
-                VoteTipping,
-            },
+            enums::{ProposalState, TransactionExecutionStatus, VoteThreshold, VoteTipping},
             governance::get_governance_data_for_realm,
             proposal::{OptionVoteResult, VoteType},
             proposal_transaction::get_proposal_transaction_data_for_proposal,
@@ -78,8 +75,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         .collect::<Vec<_>>();
     let message_parser = DummyProtocol::new(&msgs);
 
-    // Step2: Tally the votes(see impl in cast_votes)
-    // check known pubkey and its msg data
+    // Step2: Tally the votes
     let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();
     let votes = message_parser.votes()?;
 
@@ -100,7 +96,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         vote_governing_token_mint_info,
         governance_info,
         &proposal_data,
-        account_info_iter.as_slice(), // 6
+        account_info_iter.as_slice(), // 10
         &votes_auth,
         &votes,
     )?;
@@ -110,7 +106,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
 
     // Step4: Create new vote record account and update proposal
     let offchain_votes_record_data = OffchainVotesRecord {
-        account_type: GovernanceAccountType::VoteRecordV2,
+        account_type: GovernanceAddinAccountType::OffchainVotesRecord,
         record_id: record_id,
         proposal: *proposal_info.key,
         governing_token_owners: votes_auth,
@@ -185,7 +181,6 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
     Ok(())
 }
 
-///  Tally the votes (see impl in cast_votes)
 fn tally_offchain_votes(
     program_id: &Pubkey,
     realm_info: &AccountInfo,
@@ -312,7 +307,6 @@ fn tip_vote(
         get_min_vote_threshold_weight(vote_threshold, max_voter_weight)?;
 
     if proposal.vote_type != VoteType::SingleChoice {
-        // TODO: add err
         return Err(GovernanceError::InvalidInstruction.into());
     }
 
