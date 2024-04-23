@@ -1,6 +1,7 @@
 use {
     super::MessageParser,
-    solana_program::{hash::hash, program_error::ProgramError},
+    borsh::{BorshDeserialize, BorshSerialize},
+    solana_program::{hash::hash, program_error::ProgramError, pubkey::Pubkey},
     spl_governance::state::{
         proposal_transaction::InstructionData,
         vote_record::{Vote, VoteChoice},
@@ -9,44 +10,27 @@ use {
 
 pub struct IoTubeProtocol<'a> {
     raw: &'a Vec<&'a Vec<u8>>,
-    validated: bool,
 }
 
 impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     fn new(message: &'a Vec<&Vec<u8>>) -> Self {
-        IoTubeProtocol {
-            raw: message,
-            validated: false,
-        }
+        IoTubeProtocol { raw: message }
     }
 
     fn votes(&self) -> Result<Vec<Vote>, ProgramError> {
-        if let Some(first) = self.raw.get(0) {
-            if !self.raw.iter().all(|v| v == first) {
-                return Err(ProgramError::InvalidAccountData);
-            };
-            return Ok(vec![
-                Vote::Approve(vec![VoteChoice {
-                    rank: 0,
-                    weight_percentage: 100,
-                },]);
-                self.raw.len()
-            ]);
-        } else {
-            return Ok(vec![]);
-        }
+        self.validate()?;
+        return Ok(vec![
+            Vote::Approve(vec![VoteChoice {
+                rank: 0,
+                weight_percentage: 100,
+            },]);
+            self.raw.len()
+        ]);
     }
 
     fn record_id(&self) -> Result<[u8; 32], ProgramError> {
-        if let Some(first) = self.raw.get(0) {
-            if !self.raw.iter().all(|v| v == first) {
-                return Err(ProgramError::InvalidAccountData);
-            };
-            // TODO: keccak256 hash
-            return Ok(hash(&self.raw[0]).to_bytes());
-        } else {
-            return Err(ProgramError::InvalidAccountData);
-        }
+        // TODO: keccak256 hash
+        return Ok(hash(&self.raw[0]).to_bytes());
     }
 
     fn instructions_from_proposal(
@@ -70,9 +54,33 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
 
 impl<'a> IoTubeProtocol<'a> {
     fn validate(&self) -> Result<(), ProgramError> {
-        if self.validated {
+        if let Some(first) = self.raw.get(0) {
+            if !self.raw.iter().all(|v| v == first) {
+                return Err(ProgramError::InvalidAccountData);
+            };
             return Ok(());
+        } else {
+            return Err(ProgramError::InvalidAccountData);
         }
-        s
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, BorshDeserialize, BorshSerialize)]
+pub struct Payload {
+    pub program_id: Pubkey,
+    // pub votes: Vec<Vote>,
+    pub index: u64,
+    pub sender: String,
+    pub recipient: Pubkey,
+    pub amount: u64,
+}
+
+impl Payload {
+    fn bytes(&self) -> Vec<u8> {
+        [
+            self.program_id.try_to_vec().unwrap(),
+            self.amount.try_to_vec().unwrap(),
+        ]
+        .concat()
     }
 }
