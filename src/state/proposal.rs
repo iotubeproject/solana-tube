@@ -696,8 +696,8 @@ impl ProposalV2 {
     /// Checks if Proposal can be canceled in the given state
     pub fn assert_can_cancel(
         &self,
-        config: &GovernanceConfig,
-        current_unix_timestamp: UnixTimestamp,
+        _: &GovernanceConfig,
+        _: UnixTimestamp,
     ) -> Result<(), ProgramError> {
         match self.state {
             ProposalState::Draft | ProposalState::SigningOff => Ok(()),
@@ -705,9 +705,9 @@ impl ProposalV2 {
                 // Note: If there is no tipping point the proposal can be still in Voting state
                 // but already past the configured max_voting_time In that case
                 // we treat the proposal as finalized and it's no longer allowed to be canceled
-                if self.has_voting_max_time_ended(config, current_unix_timestamp) {
-                    return Err(GovernanceError::ProposalVotingTimeExpired.into());
-                }
+                // if self.has_voting_max_time_ended(config, current_unix_timestamp) {
+                //     return Err(GovernanceError::ProposalVotingTimeExpired.into());
+                // }
                 Ok(())
             }
             ProposalState::Executing

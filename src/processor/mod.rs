@@ -1,6 +1,7 @@
 //! Program processor
 
 mod message_protocol;
+mod process_cancel_proposal;
 mod process_create_governance;
 mod process_create_proposal;
 mod process_create_realm;
@@ -13,6 +14,7 @@ mod signature;
 use {
     crate::instruction::GovernanceAddinInstruction,
     borsh::BorshDeserialize,
+    process_cancel_proposal::*,
     process_create_governance::*,
     process_create_proposal::*,
     process_create_realm::*,
@@ -91,6 +93,8 @@ pub fn process_instruction(
         GovernanceInstruction::ExecuteTransaction {} => {
             process_execute_transaction(program_id, accounts)
         }
+
+        GovernanceInstruction::CancelProposal {} => process_cancel_proposal(program_id, accounts),
 
         _ => {
             msg!("Instruction not available");
