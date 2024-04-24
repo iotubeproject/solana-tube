@@ -3,7 +3,7 @@
 use {
     crate::{
         processor::{
-            message_protocol::{dummy::DummyProtocol, MessageParser},
+            message_protocol::{iotube::IoTubeProtocol, MessageParser},
             signature::ed25519::ed25519_verify,
         },
         state::{
@@ -73,7 +73,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         .iter()
         .map(|data| &data.message)
         .collect::<Vec<_>>();
-    let message_parser = DummyProtocol::new(&msgs);
+    let message_parser = IoTubeProtocol::new(&msgs);
 
     // Step2: Tally the votes
     let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();

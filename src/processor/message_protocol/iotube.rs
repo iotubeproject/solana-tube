@@ -58,7 +58,6 @@ impl<'a> IoTubeProtocol<'a> {
             if !self.raw.iter().all(|v| v == first) {
                 return Err(ProgramError::InvalidAccountData);
             };
-            Payload::try_from_slice(first.as_slice())?;
             return Ok(());
         } else {
             return Err(ProgramError::InvalidAccountData);
@@ -81,15 +80,14 @@ struct Payload {
 
 impl Payload {
     fn bytes(&self) -> Vec<u8> {
-        [
-            self.program_id.to_bytes().to_vec(),
-            self.cashier.to_vec(),
-            self.co_token.to_bytes().to_vec(),
-            self.index.to_le_bytes().to_vec(),
-            self.sender.as_bytes().to_vec(),
-            self.recipient.to_bytes().to_vec(),
-            self.amount.to_le_bytes().to_vec(),
-        ]
-        .concat()
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.program_id.to_bytes());
+        bytes.extend_from_slice(&self.cashier);
+        bytes.extend_from_slice(&self.co_token.to_bytes());
+        bytes.extend_from_slice(&self.index.to_le_bytes());
+        bytes.extend_from_slice(self.sender.as_bytes());
+        bytes.extend_from_slice(&self.recipient.to_bytes());
+        bytes.extend_from_slice(&self.amount.to_le_bytes());
+        bytes
     }
 }
