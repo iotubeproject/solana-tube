@@ -74,21 +74,21 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         .map(|data| &data.message)
         .collect::<Vec<_>>();
     let message_parser = IoTubeProtocol::new(&msgs);
+    message_parser.validate(program_id)?;
 
     // Step2: Tally the votes
-    let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();
-    let votes = message_parser.votes()?;
-
     let mut proposal_data = get_proposal_data_for_governance_and_governing_mint(
         program_id,
         proposal_info,
         governance_info.key,
         &vote_governing_token_mint_info.key,
     )?;
-
     if proposal_data.state == ProposalState::Draft {
         proposal_data.state = ProposalState::Voting;
     }
+
+    let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();
+    let votes = message_parser.votes()?;
 
     let (voter_weights, max_vote_weight, vote_threshold, vote_result) = tally_offchain_votes(
         program_id,

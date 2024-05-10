@@ -17,8 +17,19 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
         IoTubeProtocol { raw: message }
     }
 
+    fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError> {
+        if let Some(first) = self.raw.get(0) {
+            if !self.raw.iter().all(|v| v == first) {
+                return Err(ProgramError::InvalidAccountData);
+            };
+            let payload = Payload::try_from_slice(first)?;
+            payload.validate(program_id)?;
+            return Ok(());
+        }
+        return Err(ProgramError::InvalidAccountData);
+    }
+
     fn votes(&self) -> Result<Vec<Vote>, ProgramError> {
-        self.validate()?;
         return Ok(vec![
             Vote::Approve(vec![VoteChoice {
                 rank: 0,
@@ -29,8 +40,7 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     }
 
     fn record_id(&self) -> Result<[u8; 32], ProgramError> {
-        let payload = Payload::try_from_slice(&self.raw[0])?;
-        return Ok(hash(&payload.bytes()).to_bytes());
+        return Ok(hash(&self.raw[0]).to_bytes());
     }
 
     fn instructions_from_proposal(
@@ -52,19 +62,6 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     }
 }
 
-impl<'a> IoTubeProtocol<'a> {
-    fn validate(&self) -> Result<(), ProgramError> {
-        if let Some(first) = self.raw.get(0) {
-            if !self.raw.iter().all(|v| v == first) {
-                return Err(ProgramError::InvalidAccountData);
-            };
-            return Ok(());
-        } else {
-            return Err(ProgramError::InvalidAccountData);
-        }
-    }
-}
-
 const ETH_ADDRESS_SIZE: usize = 20;
 
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize)]
@@ -79,15 +76,13 @@ struct Payload {
 }
 
 impl Payload {
-    fn bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::new();
-        bytes.extend_from_slice(&self.program_id.to_bytes());
-        bytes.extend_from_slice(&self.cashier);
-        bytes.extend_from_slice(&self.co_token.to_bytes());
-        bytes.extend_from_slice(&self.index.to_le_bytes());
-        bytes.extend_from_slice(self.sender.as_bytes());
-        bytes.extend_from_slice(&self.recipient.to_bytes());
-        bytes.extend_from_slice(&self.amount.to_le_bytes());
-        bytes
+    fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError> {
+        if self.program_id != *program_id {
+            return Err(ProgramError::InvalidAccountData);
+        }
+        if self.amount == 0 {
+            return Err(ProgramError::InvalidAccountData);
+        }
+        Ok(())
     }
 }

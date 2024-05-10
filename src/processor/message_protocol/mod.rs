@@ -2,12 +2,14 @@ pub mod dummy;
 pub mod iotube;
 
 use {
-    solana_program::program_error::ProgramError,
+    solana_program::{program_error::ProgramError, pubkey::Pubkey},
     spl_governance::state::{proposal_transaction::InstructionData, vote_record::Vote},
 };
 
 pub trait MessageParser<'a> {
     fn new(message: &'a Vec<&Vec<u8>>) -> Self;
+
+    fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError>;
 
     fn votes(&self) -> Result<Vec<Vote>, ProgramError>;
 

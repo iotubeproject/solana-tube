@@ -1,6 +1,6 @@
 use {
     super::MessageParser,
-    solana_program::{hash::hash, program_error::ProgramError},
+    solana_program::{hash::hash, program_error::ProgramError, pubkey::Pubkey},
     spl_governance::state::{
         proposal_transaction::InstructionData,
         vote_record::{Vote, VoteChoice},
@@ -14,6 +14,10 @@ pub struct DummyProtocol<'a> {
 impl<'a> MessageParser<'a> for DummyProtocol<'a> {
     fn new(message: &'a Vec<&Vec<u8>>) -> Self {
         DummyProtocol { raw: message }
+    }
+
+    fn validate(&self, _: &Pubkey) -> Result<(), ProgramError> {
+        Ok(())
     }
 
     fn votes(&self) -> Result<Vec<Vote>, ProgramError> {
