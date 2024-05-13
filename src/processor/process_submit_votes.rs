@@ -17,7 +17,7 @@ use {
         },
     },
     solana_program::{
-        account_info::{next_account_info, AccountInfo},
+        account_info::{next_account_info, next_account_infos, AccountInfo},
         clock::Clock,
         entrypoint::ProgramResult,
         msg,
@@ -68,7 +68,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
 
     // Step1: Validate the signatures and extract validated msgs
     let raw_data = ed25519_verify(&instructions_sysvar_account)?;
-    msg!("ed25519_verify: {:?}", raw_data);
+    // msg!("ed25519_verify: {:?}", raw_data);
     let msgs = raw_data
         .iter()
         .map(|data| &data.message)
@@ -96,7 +96,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         vote_governing_token_mint_info,
         governance_info,
         &proposal_data,
-        account_info_iter.as_slice(), // 10
+        next_account_infos(account_info_iter, votes.len())?, // 10
         &votes_auth,
         &votes,
     )?;
@@ -135,11 +135,11 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         .unwrap();
     proposal_data.offchain_votes_record.last_vote_record_account =
         Some(*offchain_votes_record_info.key);
-    msg!(
-        "offchain_votes_record_data: {:?}",
-        offchain_votes_record_data
-    );
-    msg!("proposal_data: {:?}", proposal_data);
+    // msg!(
+    //     "offchain_votes_record_data: {:?}",
+    //     offchain_votes_record_data
+    // );
+    // msg!("proposal_data: {:?}", proposal_data);
     create_and_serialize_account_signed::<OffchainVotesRecord>(
         payer_info,
         offchain_votes_record_info,
@@ -163,8 +163,10 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         proposal_info.key,
     )?;
 
-    let record_instruction =
-        message_parser.instructions_from_proposal(&proposal_transaction_data.instructions)?;
+    let record_instruction = message_parser.instructions_from_proposal(
+        &proposal_transaction_data.instructions,
+        next_account_infos(account_info_iter, 2)?,
+    )?;
 
     let record_transaction_data = RecordTransaction {
         account_type: GovernanceAddinAccountType::RecordTransaction,
@@ -175,7 +177,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
         executed_at: None,
         execution_status: TransactionExecutionStatus::None,
     };
-    msg!("record_transaction_data: {:?}", record_transaction_data);
+    // msg!("record_transaction_data: {:?}", record_transaction_data);
     create_and_serialize_account_signed::<RecordTransaction>(
         payer_info,
         record_transaction_info,
@@ -232,11 +234,11 @@ fn tally_offchain_votes(
         })
         .collect::<Result<Vec<_>, _>>()?;
 
-    msg!(
-        "voters_token_owner_records: {:?}",
-        voters_token_owner_records
-    );
-    msg!("votes_authorites: {:?}", votes_authorites);
+    // msg!(
+    //     "voters_token_owner_records: {:?}",
+    //     voters_token_owner_records
+    // );
+    // msg!("votes_authorites: {:?}", votes_authorites);
 
     if voters_token_owner_records.len() != votes_authorites.len()
         || !voters_token_owner_records

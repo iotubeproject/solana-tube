@@ -1,9 +1,12 @@
 use {
     super::MessageParser,
     borsh::{BorshDeserialize, BorshSerialize},
-    solana_program::{keccak::hash, program_error::ProgramError, pubkey::Pubkey},
+    ctoken::{instruction::CTokenInstruction, state::CToken},
+    solana_program::{
+        account_info::AccountInfo, keccak::hash, program_error::ProgramError, pubkey::Pubkey,
+    },
     spl_governance::state::{
-        proposal_transaction::InstructionData,
+        proposal_transaction::{AccountMetaData, InstructionData},
         vote_record::{Vote, VoteChoice},
     },
 };
@@ -46,19 +49,72 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     fn instructions_from_proposal(
         &self,
         proposal_instruction: &Vec<InstructionData>,
+        ctoken_infos: &[AccountInfo], // accountinfo for co_token & co_token_programID(later one to be removed)
     ) -> Result<Vec<InstructionData>, ProgramError> {
-        let mut new_ints = proposal_instruction.clone();
-        for instruction in new_ints.iter_mut() {
-            // if let TokenInstruction::MintTo { amount } =
-            //     TokenInstruction::unpack(&instruction.data)?
-            // {
-            //     msg!("original MintTo amount: {:?}", amount);
-            //     let new_amount = amount.checked_mul(2).unwrap();
-            //     msg!("new MintTo amount: {:?}", new_amount);
-            //     instruction.data = TokenInstruction::MintTo { amount: new_amount }.pack();
-            // }
+        let payload = Payload::try_from_slice(self.raw.get(0).unwrap())?;
+
+        if ctoken_infos.len() != 2 || *ctoken_infos[0].key != payload.co_token {
+            return Err(ProgramError::InvalidAccountData);
         }
-        Ok(new_ints)
+        let c_token = CToken::try_from_slice(&ctoken_infos[0].data.borrow())?;
+
+        let authority =
+            Pubkey::find_program_address(&[&ctoken_infos[0].key.to_bytes()], ctoken_infos[1].key).0;
+
+        if proposal_instruction.len() != 1 {
+            return Err(ProgramError::InvalidAccountData);
+        }
+        let mut new_instrs = proposal_instruction.clone();
+
+        // const keys = [
+        //     { pubkey: cToken, isSigner: false, isWritable: false }, //
+        //     { pubkey: authority, isSigner: false, isWritable: false }, // from data & programID
+        //     { pubkey: cTokenTokenAccount, isSigner: false, isWritable: true }, //
+        //     { pubkey: userAccount, isSigner: false, isWritable: true }, //
+        //     { pubkey: onwer, isSigner: false, isWritable: false },
+        //     { pubkey: tokenMint, isSigner: false, isWritable: false }, //
+        //     { pubkey: tokenProgramInfo, isSigner: false, isWritable: false },
+        // ];
+        for instruction in new_instrs.iter_mut() {
+            if let CTokenInstruction::Settle { amount } =
+                CTokenInstruction::try_from_slice(&instruction.data)?
+            {
+                if instruction.accounts.len() != 7 {
+                    return Err(ProgramError::InvalidAccountData);
+                }
+                instruction.data = CTokenInstruction::Settle {
+                    amount: payload.amount,
+                }
+                .try_to_vec()?;
+
+                instruction.accounts[0] = AccountMetaData {
+                    pubkey: payload.co_token,
+                    is_signer: false,
+                    is_writable: false,
+                };
+                instruction.accounts[1] = AccountMetaData {
+                    pubkey: authority,
+                    is_signer: false,
+                    is_writable: false,
+                };
+                instruction.accounts[2] = AccountMetaData {
+                    pubkey: c_token.token,
+                    is_signer: false,
+                    is_writable: true,
+                };
+                instruction.accounts[3] = AccountMetaData {
+                    pubkey: payload.recipient,
+                    is_signer: false,
+                    is_writable: true,
+                };
+                instruction.accounts[5] = AccountMetaData {
+                    pubkey: c_token.token_mint,
+                    is_signer: false,
+                    is_writable: false,
+                };
+            }
+        }
+        Ok(new_instrs)
     }
 }
 

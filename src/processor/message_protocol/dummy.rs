@@ -1,6 +1,8 @@
 use {
     super::MessageParser,
-    solana_program::{hash::hash, program_error::ProgramError, pubkey::Pubkey},
+    solana_program::{
+        account_info::AccountInfo, hash::hash, program_error::ProgramError, pubkey::Pubkey,
+    },
     spl_governance::state::{
         proposal_transaction::InstructionData,
         vote_record::{Vote, VoteChoice},
@@ -44,6 +46,7 @@ impl<'a> MessageParser<'a> for DummyProtocol<'a> {
     fn instructions_from_proposal(
         &self,
         proposal_instruction: &Vec<InstructionData>,
+        _: &[AccountInfo],
     ) -> Result<Vec<InstructionData>, ProgramError> {
         Ok(proposal_instruction.clone())
     }

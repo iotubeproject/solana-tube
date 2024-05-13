@@ -2,7 +2,7 @@ pub mod dummy;
 pub mod iotube;
 
 use {
-    solana_program::{program_error::ProgramError, pubkey::Pubkey},
+    solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey},
     spl_governance::state::{proposal_transaction::InstructionData, vote_record::Vote},
 };
 
@@ -18,5 +18,6 @@ pub trait MessageParser<'a> {
     fn instructions_from_proposal(
         &self,
         proposal_instructions: &Vec<InstructionData>,
+        accounts_info: &[AccountInfo],
     ) -> Result<Vec<InstructionData>, ProgramError>;
 }
