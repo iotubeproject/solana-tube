@@ -40,8 +40,8 @@ pub fn process_instruction(
         Err(_) => {
             if let Ok(ins_addin) = GovernanceAddinInstruction::try_from_slice(input) {
                 match ins_addin {
-                    GovernanceAddinInstruction::SubmitVotes {} => {
-                        return process_submit_votes(program_id, accounts)
+                    GovernanceAddinInstruction::SubmitVotes { data } => {
+                        return process_submit_votes(program_id, accounts, &data);
                     }
                 }
             }

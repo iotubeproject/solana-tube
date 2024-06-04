@@ -7,7 +7,7 @@ use {
 };
 
 pub trait MessageParser<'a> {
-    fn new(message: &'a Vec<&Vec<u8>>) -> Self;
+    fn new(messages: &'a [u8], messages_hash: &'a Vec<&Vec<u8>>) -> Self;
 
     fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError>;
 

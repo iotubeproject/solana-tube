@@ -42,7 +42,11 @@ use {
 };
 
 /// Processes SubmitVotes instruction
-pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn process_submit_votes(
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    data: &[u8],
+) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
 
     let instructions_sysvar_account = next_account_info(account_info_iter)?; // 0
@@ -69,11 +73,11 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
     // Step1: Validate the signatures and extract validated msgs
     let raw_data = ed25519_verify(&instructions_sysvar_account)?;
     // msg!("ed25519_verify: {:?}", raw_data);
-    let msgs = raw_data
+    let msgs_hash = raw_data
         .iter()
         .map(|data| &data.message)
         .collect::<Vec<_>>();
-    let message_parser = IoTubeProtocol::new(&msgs);
+    let message_parser = IoTubeProtocol::new(&data, &msgs_hash);
     message_parser.validate(program_id)?;
 
     // Step2: Tally the votes
@@ -165,7 +169,7 @@ pub fn process_submit_votes(program_id: &Pubkey, accounts: &[AccountInfo]) -> Pr
 
     let record_instruction = message_parser.instructions_from_proposal(
         &proposal_transaction_data.instructions,
-        next_account_infos(account_info_iter, 2)?,
+        next_account_infos(account_info_iter, 1)?,
     )?;
 
     let record_transaction_data = RecordTransaction {

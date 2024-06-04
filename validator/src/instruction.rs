@@ -22,5 +22,6 @@ pub enum GovernanceAddinInstruction {
     ///   8. `[signer]` Payer
     ///   9. `[]` System program
     ///   10+ Any extra accounts that are part of TokenOwnerRecord of the voter, in order
-    SubmitVotes {},
+    SubmitVotes { data: Vec<u8> },
+    // TODO: add process_upsert_votes_data instr to store votes data in the PDA account
 }

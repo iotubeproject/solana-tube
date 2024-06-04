@@ -14,7 +14,7 @@ pub struct DummyProtocol<'a> {
 }
 
 impl<'a> MessageParser<'a> for DummyProtocol<'a> {
-    fn new(message: &'a Vec<&Vec<u8>>) -> Self {
+    fn new(_: &'a [u8], message: &'a Vec<&Vec<u8>>) -> Self {
         DummyProtocol { raw: message }
     }
 
