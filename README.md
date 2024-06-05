@@ -30,8 +30,6 @@ Solana-IoTeX bridge, leveraged on the [ioTube Bridge architecture](https://docs.
 * Validator: `cd validator/ && make deploy`
 
 
-
-
 ## License
 
 This project is licensed under the [Apache License 2.0](LICENSE)
