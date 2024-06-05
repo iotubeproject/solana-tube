@@ -1,0 +1,13 @@
+[profile.dev]
+split-debuginfo = "unpacked"
+
+[workspace]
+members = [
+    "ctoken/program",
+    "hello/program",
+]
+
+exclude = [
+]
+
+resolver = "2"

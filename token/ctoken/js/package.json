@@ -1,0 +1,51 @@
+{
+    "name": "tube-solana-ctoken",
+    "version": "0.1.0",
+    "license": "MIT",
+    "main": "lib/cjs/index.js",
+    "types": "lib/types/index.d.ts",
+    "module": "lib/esm/index.js",
+    "files": [
+        "lib",
+        "src",
+        "README.md"
+    ],
+    "scripts": {
+        "clean": "rm -rf lib/*",
+        "build": "tsc --build --verbose tsconfig.all.json",
+        "postbuild": "echo '{\"type\":\"commonjs\"}' > lib/cjs/package.json && echo '{\"type\":\"module\"}' > lib/esm/package.json",
+        "build:program": "cargo build-sbf --manifest-path=../Cargo.toml",
+        "test:js": "mocha test",
+        "lint": "npm run pretty && eslint --max-warnings 0 .",
+        "lint:fix": "npm run pretty:fix && eslint . --fix",
+        "pretty": "prettier --check '{*,**/*}.{ts,tsx,js,jsx,json}'",
+        "pretty:fix": "prettier --write '{*,**/*}.{ts,tsx,js,jsx,json}'"
+    },
+    "dependencies": {
+        "@solana/buffer-layout": "^4.0.0",
+        "@solana/buffer-layout-utils": "^0.2.0",
+        "borsh": "^0.7.0"
+    },
+    "peerDependencies": {
+        "@solana/web3.js": "^1.91.4"
+    },
+    "devDependencies": {
+        "@solana/spl-token": "0.4.0",
+        "@types/bn.js": "^5.1.0",
+        "@types/chai-as-promised": "^7.1.4",
+        "@types/chai": "^4.3.14",
+        "@types/mocha": "^10.0.6",
+        "@typescript-eslint/eslint-plugin": "^7.5.0",
+        "@typescript-eslint/parser": "^7.5.0",
+        "eslint": "^8.57.0",
+        "eslint-plugin-import": "^2.29.1",
+        "eslint-config-prettier": "^9.1.0",
+        "eslint-plugin-prettier": "^5.1.3",
+        "eslint-plugin-require-extensions": "^0.1.1",
+        "mocha": "^10.4.0",
+        "prettier": "^3.2.5",
+        "start-server-and-test": "^2.0.3",
+        "ts-node": "^10.9.2",
+        "typescript": "^5.4.4"
+    }
+}

@@ -1,0 +1,21 @@
+[package]
+name = "hello"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[features]
+no-entrypoint = []
+
+[lib]
+name = "hello"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+borsh = "0.10.3"
+hex = "0.4.3"
+num-derive = "0.4.2"
+num-traits = "0.2.18"
+solana-program = "1.18.4"
+thiserror = "1.0.58"
+ctoken = { version = "0.1.0", path = "../../ctoken/program", features = [ "no-entrypoint" ] }

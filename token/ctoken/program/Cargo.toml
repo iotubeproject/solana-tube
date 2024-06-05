@@ -1,0 +1,24 @@
+[package]
+name = "ctoken"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[features]
+no-entrypoint = []
+
+[lib]
+name = "ctoken"
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+borsh = "0.10.3"
+hex = "0.4.3"
+num-derive = "0.4.2"
+num-traits = "0.2.18"
+solana-program = "1.18.4"
+spl-token-2022 = { version = "3.0.2", features = ["no-entrypoint"] }
+thiserror = "1.0.58"
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
