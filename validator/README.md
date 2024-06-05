@@ -1,1 +1,1 @@
-# solana-gov
+# Validator for ioTube Solana bridge
