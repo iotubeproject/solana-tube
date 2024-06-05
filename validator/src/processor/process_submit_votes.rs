@@ -1,5 +1,3 @@
-//! Program state processor
-
 use {
     crate::{
         processor::{
@@ -40,15 +38,12 @@ use {
     },
     spl_governance_tools::account::create_and_serialize_account_signed,
 };
-
-/// Processes SubmitVotes instruction
 pub fn process_submit_votes(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     data: &[u8],
 ) -> ProgramResult {
     let account_info_iter = &mut accounts.iter();
-
     let instructions_sysvar_account = next_account_info(account_info_iter)?; // 0
     let realm_info = next_account_info(account_info_iter)?; // 1
     let vote_governing_token_mint_info = next_account_info(account_info_iter)?; // 2
@@ -59,28 +54,20 @@ pub fn process_submit_votes(
     let record_transaction_info = next_account_info(account_info_iter)?; // 7
     let payer_info = next_account_info(account_info_iter)?; // 8
     let system_info = next_account_info(account_info_iter)?; // 9
-
     let clock = Clock::get()?;
-
-    // Step0: Prevent resubmision of votes
     if !offchain_votes_record_info.data_is_empty() {
         return Err(GovernanceError::VoteAlreadyExists.into());
     }
     if !record_transaction_info.data_is_empty() {
         return Err(GovernanceError::TransactionAlreadyExists.into());
     }
-
-    // Step1: Validate the signatures and extract validated msgs
     let raw_data = ed25519_verify(&instructions_sysvar_account)?;
-    // msg!("ed25519_verify: {:?}", raw_data);
     let msgs_hash = raw_data
         .iter()
         .map(|data| &data.message)
         .collect::<Vec<_>>();
     let message_parser = IoTubeProtocol::new(&data, &msgs_hash);
     message_parser.validate(program_id)?;
-
-    // Step2: Tally the votes
     let mut proposal_data = get_proposal_data_for_governance_and_governing_mint(
         program_id,
         proposal_info,
@@ -90,10 +77,8 @@ pub fn process_submit_votes(
     if proposal_data.state == ProposalState::Draft {
         proposal_data.state = ProposalState::Voting;
     }
-
     let votes_auth = raw_data.iter().map(|data| data.pubkey).collect::<Vec<_>>();
     let votes = message_parser.votes()?;
-
     let (voter_weights, max_vote_weight, vote_threshold, vote_result) = tally_offchain_votes(
         program_id,
         realm_info,
@@ -104,7 +89,6 @@ pub fn process_submit_votes(
         &votes_auth,
         &votes,
     )?;
-
     if vote_result == OptionVoteResult::None {
         msg!("Insufficient votes from offchain");
         msg!("voter_weights: {:?}", voter_weights);
@@ -113,11 +97,7 @@ pub fn process_submit_votes(
         msg!("vote_result: {:?}", vote_result);
         return Err(ProgramError::InvalidInstructionData);
     }
-
-    // Step3: Generate record_id from msg (protocol related)
     let record_id = message_parser.record_id()?;
-
-    // Step4: Create new vote record account and update proposal
     let offchain_votes_record_data = OffchainVotesRecord {
         account_type: GovernanceAddinAccountType::OffchainVotesRecord,
         record_id: record_id,
@@ -139,11 +119,6 @@ pub fn process_submit_votes(
         .unwrap();
     proposal_data.offchain_votes_record.last_vote_record_account =
         Some(*offchain_votes_record_info.key);
-    // msg!(
-    //     "offchain_votes_record_data: {:?}",
-    //     offchain_votes_record_data
-    // );
-    // msg!("proposal_data: {:?}", proposal_data);
     create_and_serialize_account_signed::<OffchainVotesRecord>(
         payer_info,
         offchain_votes_record_info,
@@ -155,8 +130,6 @@ pub fn process_submit_votes(
         0,
     )?;
     proposal_data.serialize(&mut proposal_info.data.borrow_mut()[..])?;
-
-    // Step5: If succeeded, Generate record transaction from proposal transaction and msg (protocol related)
     if vote_result != OptionVoteResult::Succeeded {
         msg!("Vote failed, vote_result: {:?}", vote_result);
         return Ok(());
@@ -166,12 +139,10 @@ pub fn process_submit_votes(
         proposal_transaction_info,
         proposal_info.key,
     )?;
-
     let record_instruction = message_parser.instructions_from_proposal(
         &proposal_transaction_data.instructions,
         next_account_infos(account_info_iter, 1)?,
     )?;
-
     let record_transaction_data = RecordTransaction {
         account_type: GovernanceAddinAccountType::RecordTransaction,
         proposal: *proposal_info.key,
@@ -181,7 +152,6 @@ pub fn process_submit_votes(
         executed_at: None,
         execution_status: TransactionExecutionStatus::None,
     };
-    // msg!("record_transaction_data: {:?}", record_transaction_data);
     create_and_serialize_account_signed::<RecordTransaction>(
         payer_info,
         record_transaction_info,
@@ -192,10 +162,8 @@ pub fn process_submit_votes(
         &Rent::get()?,
         0,
     )?;
-
     Ok(())
 }
-
 fn tally_offchain_votes(
     program_id: &Pubkey,
     realm_info: &AccountInfo,
@@ -213,19 +181,13 @@ fn tally_offchain_votes(
     )?;
     let governance_data =
         get_governance_data_for_realm(program_id, governance_info, realm_info.key)?;
-
-    // For simplicity we are assuming no veto votes
     let vote_kind = VoteKind::Electorate;
-
-    // assert proposal can be voted
     if proposal_data.state != ProposalState::Voting {
         return Err(GovernanceError::InvalidStateCannotVote.into());
     }
-
     votes
         .iter()
         .try_for_each(|vote| proposal_data.assert_valid_vote(vote))?;
-
     let voters_token_owner_records = voters_token_owner_record_infos
         .iter()
         .map(|token_owner_record_info| {
@@ -237,13 +199,6 @@ fn tally_offchain_votes(
             )
         })
         .collect::<Result<Vec<_>, _>>()?;
-
-    // msg!(
-    //     "voters_token_owner_records: {:?}",
-    //     voters_token_owner_records
-    // );
-    // msg!("votes_authorites: {:?}", votes_authorites);
-
     if voters_token_owner_records.len() != votes_authorites.len()
         || !voters_token_owner_records
             .iter()
@@ -252,20 +207,15 @@ fn tally_offchain_votes(
     {
         return Err(GovernanceError::GoverningTokenOwnerMustSign.into());
     }
-
     let votes_weights = voters_token_owner_records
         .iter()
         .map(|record| record.governing_token_deposit_amount)
         .collect::<Vec<_>>();
-
-    // Calculate Proposal voting weights
     let mut yes_vote_weight = 0u64;
     let mut deny_vote_weight = 0u64;
-
     for (vote, weight) in votes.iter().zip(votes_weights.clone()) {
         match vote {
             Vote::Approve(choices) => {
-                // Only support single choice voting for now
                 if choices.len() != 1 {
                     return Err(GovernanceError::InvalidInstruction.into());
                 }
@@ -279,20 +229,16 @@ fn tally_offchain_votes(
             }
         }
     }
-
-    // Tip proposal
     let max_voter_weight = proposal_data.resolve_max_voter_weight(
         &realm_data,
         vote_governing_token_mint_info,
         &vote_kind,
     )?;
-
     let vote_threshold = governance_data.resolve_vote_threshold(
         &realm_data,
         vote_governing_token_mint_info.key,
         &vote_kind,
     )?;
-
     let votes_result = tip_vote(
         &proposal_data,
         max_voter_weight,
@@ -301,7 +247,6 @@ fn tally_offchain_votes(
         yes_vote_weight,
         deny_vote_weight,
     )?;
-
     return Ok((
         votes_weights,
         max_voter_weight,
@@ -309,7 +254,6 @@ fn tally_offchain_votes(
         votes_result,
     ));
 }
-
 fn tip_vote(
     proposal: &ProposalV2,
     max_voter_weight: u64,
@@ -320,11 +264,9 @@ fn tip_vote(
 ) -> Result<OptionVoteResult, ProgramError> {
     let min_vote_threshold_weight =
         get_min_vote_threshold_weight(vote_threshold, max_voter_weight)?;
-
     if proposal.vote_type != VoteType::SingleChoice {
         return Err(GovernanceError::InvalidInstruction.into());
     }
-
     match vote_tipping {
         VoteTipping::Disabled => {}
         VoteTipping::Strict => {
@@ -340,17 +282,11 @@ fn tip_vote(
             }
         }
     }
-
-    // If vote tipping isn't disabled entirely, allow a vote to complete as
-    // "defeated" if there is no possible way of reaching majority or the
-    // min_vote_threshold_weight for another option. This tipping is always
-    // strict, there's no equivalent to "early" tipping for deny votes.
     if *vote_tipping != VoteTipping::Disabled
         && (deny_vote_weight > (max_voter_weight.saturating_sub(min_vote_threshold_weight))
             || deny_vote_weight >= (max_voter_weight.saturating_sub(deny_vote_weight)))
     {
         return Ok(OptionVoteResult::Defeated);
     }
-
     Ok(OptionVoteResult::None)
 }
