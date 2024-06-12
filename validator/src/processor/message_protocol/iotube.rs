@@ -117,6 +117,7 @@ struct Payload {
     pub sender: String,
     pub recipient: Pubkey,
     pub amount: u64,
+    pub payload: Vec<u8>,
 }
 impl Payload {
     fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError> {

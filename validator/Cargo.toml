@@ -14,7 +14,7 @@ spl-governance-addin-api = "0.1.4"
 spl-governance-tools = "0.1.4"
 spl-token = "4.0.1"
 
-ctoken = { path = "../../tube-solana-program/ctoken/program", features = [ "no-entrypoint" ] }
+ctoken = { path = "../token/ctoken/program", features = [ "no-entrypoint" ] }
 
 [dev-dependencies]
 proptest = "1.4.0"
