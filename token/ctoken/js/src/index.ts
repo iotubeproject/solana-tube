@@ -72,6 +72,7 @@ export const BridgeLogSchema = new Map([
                 ['amount', 'u64'],
                 ['fee', 'u64'],
                 ['destination', 'u32'],
+                ['payload', ['u8']],
             ],
         },
     ],
@@ -204,6 +205,7 @@ const BridgePayloadSchema = new Map([
                 ['id', 'u8'],
                 ['amount', 'u64'],
                 ['recipient', 'string'],
+                ['payload', ['u8']],
             ],
         },
     ],
@@ -457,6 +459,7 @@ export class CToken {
         tokenProgramInfo: PublicKey,
         amount: bigint,
         recipient: string,
+        payload: number[],
         cTokenProgramId: PublicKey,
     ): TransactionInstruction {
         const keys = [
@@ -473,6 +476,7 @@ export class CToken {
             id: InstructionVariant.Bridge,
             amount: amount,
             recipient: recipient,
+            payload: payload,
         });
 
         return new TransactionInstruction({
@@ -580,6 +584,7 @@ export class CToken {
         tokenProgramId: PublicKey,
         amount: bigint,
         recipient: string,
+        payload: number[],
         payer: Keypair,
         cTokenProgramId: PublicKey,
         confirmOptions?: ConfirmOptions,
@@ -597,6 +602,7 @@ export class CToken {
                     tokenProgramId,
                     amount,
                     recipient,
+                    payload,
                     cTokenProgramId,
                 ),
             ),

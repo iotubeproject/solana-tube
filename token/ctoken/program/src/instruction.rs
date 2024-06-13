@@ -30,6 +30,7 @@ pub enum CTokenInstruction {
     Bridge {
         amount: u64,
         recipient: String,
+        payload: Vec<u8>,
     },
     Settle {
         amount: u64,
@@ -44,6 +45,7 @@ pub fn settle(
     user_account: &Pubkey,
     authorith: &Pubkey,
     token_mint: &Pubkey,
+    config: &Pubkey,
     token_program_id: &Pubkey,
     amount: u64,
 ) -> Result<Instruction, ProgramError> {
@@ -57,6 +59,7 @@ pub fn settle(
         AccountMeta::new_readonly(*authorith, true),
         AccountMeta::new(*token_mint, false),
         AccountMeta::new_readonly(*token_program_id, false),
+        AccountMeta::new_readonly(*config, false),
     ];
 
     Ok(Instruction {

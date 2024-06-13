@@ -26,6 +26,9 @@ pub struct Bridge {
 
     /// Destination
     pub destination: u32,
+
+    /// Payload
+    pub payload: Vec<u8>,
 }
 
 impl fmt::Display for Bridge {

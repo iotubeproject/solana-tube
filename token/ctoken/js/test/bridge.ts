@@ -67,6 +67,7 @@ async function main() {
         TOKEN_PROGRAM_ID,
         amount,
         recipient, // payload
+        [103, 104],
         payer,
         cTokenProgramId,
     );

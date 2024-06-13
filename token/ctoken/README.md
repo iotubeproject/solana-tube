@@ -34,6 +34,18 @@ config: EvdaveTPSkJ3UReURhijs74MmpzmFWNnbEdtPvsddoqx
 // Solana cToken for 5XRVN8CPXWiuii9ufuEE5LmZSdtg9qvKFHpvJCL5UTsc token with GgVc7NPPeJoas5k1Y9V4uiBc26RVs7N2XEqMbYECp7Ms authority and 4690 destination is 85cAA5dLWmD4NXwXKXKdj7cWXZHw7kNtJLJ6XHxgW5hH
 
 // Solana cToken for 6s5ndQVqWQ5Ast4qZA9rF1BCeMUUB7XsKiNj3tkynXJQ token with 2aguEA4gUmtUdAhcj3UJLwgpAjHRufuMKmN9p6voJv18 authority and 0 destination is CZG1WVr9kEXZMEVoUPWaReHQPJMbNMvCA5o8ZxoBowYJ
+
+// Nosana
+Solana cToken for devr1BGQndEW5k5zfvG5FsLyZv1Ap73vNgAHcQ9sUVP token with 6yagrxW7rgWt6t27SHDZJmKj7SgmvkSxSQTKGDMtqhpB authority and 4690 destination is EYrfvoHuhTdMMfiqdMJByLtP4xp1LxeWPRnqykQED1bW
+```
+
+### Devnet
+
+```
+cToken program: 8xzoC5yD95X4e3WfKCeN68JCScJTutTsjtK8H28cxAW6
+config: FqipCjdqPxhGrdGrkeFiaAx5dMR7mUE1mfwMZ8GfReoB
+
+Solana cToken for 5XRVN8CPXWiuii9ufuEE5LmZSdtg9qvKFHpvJCL5UTsc token with 5nkPN2npcj5YbsPEr8rK6p6ZRtS7NPpDzmH1YtuJkRZe authority and 4690 destination is AuymeYEJoMum8F9jxGM9HYhdw7qg7H63mvE26u87U8DF
 ```
 
 

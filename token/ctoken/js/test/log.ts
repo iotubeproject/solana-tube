@@ -4,7 +4,7 @@ import {PublicKey} from '@solana/web3.js';
 
 async function main() {
     const log =
-        'Bridge: 37cb6e050ce3ad2b3939a555aebde7f15a9c9d37d5ef1ce4fce9e21a4b8c44080100000000000000077423955995f4033ad7ebce2ff04a731c98823c220b40429548094df6684e882a000000307862373130343462366364383433646463313165343239386539646136346461303038363465303939a086010000000000000000000000000051120000';
+        'Bridge: bfe83295da43156698c425b75599ff3c6a637ed4d49544659fc92efaa5c47ba202000000000000002aac73de831e428cc021c172a6de30f16a22115f5beeb67c41023a4d968e9a8a2a00000030786237313034346236636438343364646331316534323938653964613634646130303836346530393940420f0000000000000000000000000052120000020000006768';
 
     const data = Buffer.from(log.substring(8), 'hex');
 
@@ -23,6 +23,8 @@ async function main() {
     const recipient = birdgeLog.recipient;
     // @ts-ignore
     const destination = birdgeLog.destination;
+    // @ts-ignore
+    const payload = birdgeLog.payload;
 
     console.log(`Bridge log:
     {
@@ -33,6 +35,7 @@ async function main() {
         amount: ${amount},
         fee: ${fee},
         destination: ${destination},
+        payload: ${Buffer.from(payload).toString('hex')},
     }`);
 }
 
