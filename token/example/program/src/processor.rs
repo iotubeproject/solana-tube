@@ -21,6 +21,7 @@ impl Processor {
         let user_info = next_account_info(account_info_iter)?;
         let owner_info = next_account_info(account_info_iter)?;
         let token_mint_info = next_account_info(account_info_iter)?;
+        let config_info = next_account_info(account_info_iter)?;
         let token_program_info = next_account_info(account_info_iter)?;
 
         let (owner, bump_seed) = Pubkey::find_program_address(&[b"ctoken"], program_id);
@@ -36,8 +37,9 @@ impl Processor {
             &user_info.key,
             &owner_info.key,
             &token_mint_info.key,
+            &config_info.key,
             &token_program_info.key,
-            20000,
+            200000,
         )?;
 
         invoke_signed(
@@ -49,6 +51,7 @@ impl Processor {
                 user_info.clone(),
                 owner_info.clone(),
                 token_mint_info.clone(),
+                config_info.clone(),
                 token_program_info.clone(),
             ],
             &[&[b"ctoken", &[bump_seed]]],

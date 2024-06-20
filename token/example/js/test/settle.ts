@@ -13,10 +13,13 @@ async function main() {
     ) as number[];
     const secretKey = Uint8Array.from(secret);
     const payer = Keypair.fromSecretKey(secretKey);
-    const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+    // const rpc = clusterApiUrl('devnet');
+    const rpc = 'http://localhost:8899';
+    const connection = new Connection(rpc, 'confirmed');
 
     const cToken = new PublicKey(`${process.env.C_TOKEN}`);
     const cTokenProgramId = new PublicKey(`${process.env.C_TOKEN_PROGRAM_ID}`);
+    const config = new PublicKey(`${process.env.CONFIG}`);
 
     const tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);
     const userInfo = await getAssociatedTokenAddress(
@@ -42,7 +45,7 @@ async function main() {
         helloProgramId,
     );
 
-    console.log(helloPDAPubkey.toString())
+    console.log(`authority: ${helloPDAPubkey.toString()}`);
 
     const instruction = new TransactionInstruction({
         keys: [
@@ -52,7 +55,8 @@ async function main() {
             {pubkey: tokenAccount, isSigner: false, isWritable: true},
             {pubkey: userInfo, isSigner: false, isWritable: true},
             {pubkey: helloPDAPubkey, isSigner: false, isWritable: false},
-            {pubkey: tokenMint, isSigner: false, isWritable: false},
+            {pubkey: tokenMint, isSigner: false, isWritable: true},
+            {pubkey: config, isSigner: false, isWritable: false},
             {pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
         ],
         programId: helloProgramId,

@@ -66,8 +66,8 @@ async function main() {
         tokenMint,
         TOKEN_PROGRAM_ID,
         amount,
-        recipient, // payload
-        [103, 104],
+        recipient, 
+        [], // payload
         payer,
         cTokenProgramId,
     );

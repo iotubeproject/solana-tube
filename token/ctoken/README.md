@@ -63,3 +63,10 @@ config: EvdaveTPSkJ3UReURhijs74MmpzmFWNnbEdtPvsddoqx
 
 // Solana cToken for GdxiFDj2FwnvMNwes315TG8pJ6mKdbDLrMpBxQ1rTu2y token with rwBi3DxPgT9Er1rxRxa4fDAPAFxz5tQqyyUAiV6wvBe authority and 0 destination is 2zRdJ8psKh863z4vkSxET3VQW9gvicJHW3aBPH3BFmRp
 ```
+
+### mainnet
+
+```
+cToken program: A9SGRcytnfx6U1QrnMUwK5sxYyCYY3MpyrPcyeafhSMF
+config: E83sFGG5R3psWhotZSihbPb6DLmLnGK122ZF9q7VmYSM
+```
