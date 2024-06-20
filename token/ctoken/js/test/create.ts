@@ -4,8 +4,8 @@ import {createAccount, createMint, TOKEN_PROGRAM_ID} from '@solana/spl-token';
 import {CToken} from '../src';
 
 async function main() {
-    const rpc = clusterApiUrl('devnet');
-    // const rpc = 'http://localhost:8899';
+    // const rpc = clusterApiUrl('devnet');
+    const rpc = `${process.env.SOLANA_RPC_URL}`;
 
     const secret = JSON.parse(
         fs.readFileSync(`${process.env.PRIVATE_KEY_PATH}`).toString(),
