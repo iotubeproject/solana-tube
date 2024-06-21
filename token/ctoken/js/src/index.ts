@@ -10,6 +10,9 @@ import {
 } from '@solana/web3.js';
 import {PublicKey, SystemProgram, Transaction} from '@solana/web3.js';
 import * as borsh from 'borsh';
+import {
+    createApproveInstruction
+} from '@solana/spl-token';
 
 class Assignable {
     // @ts-ignore
@@ -606,6 +609,50 @@ export class CToken {
                     cTokenProgramId,
                 ),
             ),
+            [payer, userTransferAuthority],
+            confirmOptions,
+        );
+    }
+
+    static async approveBridge(
+        connection: Connection,
+        cToken: PublicKey,
+        config: PublicKey,
+        tokenAccount: PublicKey,
+        userAccount: PublicKey,
+        userTransferAuthority: Keypair,
+        tokenMint: PublicKey,
+        tokenProgramId: PublicKey,
+        amount: bigint,
+        recipient: string,
+        payload: number[],
+        payer: Keypair,
+        cTokenProgramId: PublicKey,
+        confirmOptions?: ConfirmOptions,
+    ): Promise<TransactionSignature> {
+        return await sendAndConfirmTransaction(
+            connection,
+            new Transaction().add(...[
+                createApproveInstruction(
+                    userAccount,
+                    userTransferAuthority.publicKey,
+                    payer.publicKey,
+                    amount,
+                ),
+                CToken.bridgeInstruction(
+                    cToken,
+                    config,
+                    tokenAccount,
+                    userAccount,
+                    userTransferAuthority.publicKey,
+                    tokenMint,
+                    tokenProgramId,
+                    amount,
+                    recipient,
+                    payload,
+                    cTokenProgramId,
+                ),
+            ]),
             [payer, userTransferAuthority],
             confirmOptions,
         );

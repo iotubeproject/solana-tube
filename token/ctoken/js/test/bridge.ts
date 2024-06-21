@@ -10,7 +10,7 @@ import {CToken, cTokenAccount, cTokenAccountSchema} from '../src';
 
 async function main() {
     // const rpc = clusterApiUrl('devnet');
-    const rpc = 'http://localhost:8899';
+    const rpc = `${process.env.SOLANA_RPC_URL}`;
 
     const secret = JSON.parse(
         fs.readFileSync(`${process.env.PRIVATE_KEY_PATH}`).toString(),
@@ -43,20 +43,20 @@ async function main() {
     // @ts-ignore
     const tokenAccount = new PublicKey(cTokenAccountState.token);
 
-    const amount = 1000000n;
-    console.log('Approve token');
-    await approve(
-        connection,
-        payer,
-        userInfo,
-        userTransferAuthority.publicKey,
-        payer,
-        amount,
-    );
+    const amount = 1000000000n;
+    // console.log('Approve token');
+    // await approve(
+    //     connection,
+    //     payer,
+    //     userInfo,
+    //     userTransferAuthority.publicKey,
+    //     payer,
+    //     amount,
+    // );
 
-    const recipient = '0xb71044b6cd843ddc11e4298e9da64da00864e099';
+    const recipient = '0xBE0a404563130Bc490442dbBCB593E67CcE336b1';
 
-    const signature = await CToken.bridge(
+    const signature = await CToken.approveBridge(
         connection,
         cToken,
         config,
