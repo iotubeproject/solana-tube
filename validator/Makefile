@@ -11,7 +11,7 @@ TARGET_DIR = target
 all: build
 
 build: clean-deploy
-	$(CARGO) build-bpf
+	$(CARGO) build-sbf
 
 clean:
 	$(CARGO) clean
@@ -33,4 +33,4 @@ airdrop:
 	solana airdrop 5
 
 deploy: airdrop
-	solana program deploy ./target/deploy/solana_gov.so
+	solana program deploy  --use-rpc --max-sign-attempts 10000 ./target/deploy/solana_gov.so

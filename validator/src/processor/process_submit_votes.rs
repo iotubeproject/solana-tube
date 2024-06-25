@@ -67,7 +67,7 @@ pub fn process_submit_votes(
         .map(|data| &data.message)
         .collect::<Vec<_>>();
     let message_parser = IoTubeProtocol::new(&data, &msgs_hash);
-    message_parser.validate(program_id)?;
+    message_parser.validate(proposal_info.key)?;
     let mut proposal_data = get_proposal_data_for_governance_and_governing_mint(
         program_id,
         proposal_info,

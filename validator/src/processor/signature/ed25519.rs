@@ -12,14 +12,19 @@ pub fn ed25519_verify(
     assert!(sysvar::instructions::check_id(
         instructions_sysvar_account.key
     ));
-    let ed25519_instr =
-        sysvar::instructions::load_instruction_at_checked(0, instructions_sysvar_account)?;
+    let cur_index = sysvar::instructions::load_current_index_checked(instructions_sysvar_account)?;
+    assert!(cur_index > 0, "cur_index should be greater than 0");
+    let ed25519_instr_index = cur_index - 1;
+    let ed25519_instr = sysvar::instructions::load_instruction_at_checked(
+        ed25519_instr_index as usize,
+        instructions_sysvar_account,
+    )?;
     assert!(ed25519_program::check_id(&ed25519_instr.program_id));
     let mut data_array = vec![];
     for offsets in ed25519_defs::iter_signature_offsets(&ed25519_instr.data)? {
-        assert_eq!(0, offsets.signature_instruction_index);
-        assert_eq!(0, offsets.public_key_instruction_index);
-        assert_eq!(0, offsets.message_instruction_index);
+        assert_eq!(ed25519_instr_index, offsets.signature_instruction_index);
+        assert_eq!(ed25519_instr_index, offsets.public_key_instruction_index);
+        assert_eq!(ed25519_instr_index, offsets.message_instruction_index);
         let pubkey = &ed25519_instr.data[offsets.public_key_offset as usize
             ..offsets.public_key_offset as usize + ed25519_defs::PUBKEY_SERIALIZED_SIZE];
         let message = &ed25519_instr.data[offsets.message_data_offset as usize

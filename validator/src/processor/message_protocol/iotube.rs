@@ -18,7 +18,7 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
     fn new(raw_data: &'a [u8], hashes: &'a Vec<&Vec<u8>>) -> Self {
         IoTubeProtocol { raw_data, hashes }
     }
-    fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError> {
+    fn validate(&self, proposal: &Pubkey) -> Result<(), ProgramError> {
         if let Some(first) = self.hashes.get(0) {
             if !self.hashes.iter().all(|v| v == first) {
                 return Err(ProgramError::InvalidAccountData);
@@ -27,7 +27,7 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
                 return Err(ProgramError::InvalidAccountData);
             }
             let payload = Payload::try_from_slice(self.raw_data)?;
-            payload.validate(program_id)?;
+            payload.validate(proposal)?;
             return Ok(());
         }
         return Err(ProgramError::InvalidAccountData);
@@ -110,7 +110,7 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
 const ETH_ADDRESS_SIZE: usize = 20;
 #[derive(Clone, Debug, BorshDeserialize, BorshSerialize)]
 struct Payload {
-    pub program_id: Pubkey,
+    pub proposal: Pubkey,
     pub cashier: [u8; ETH_ADDRESS_SIZE],
     pub co_token: Pubkey,
     pub index: u64,
@@ -120,8 +120,8 @@ struct Payload {
     pub payload: Vec<u8>,
 }
 impl Payload {
-    fn validate(&self, program_id: &Pubkey) -> Result<(), ProgramError> {
-        if self.program_id != *program_id {
+    fn validate(&self, proposal: &Pubkey) -> Result<(), ProgramError> {
+        if self.proposal != *proposal {
             return Err(ProgramError::InvalidAccountData);
         }
         if self.amount == 0 {
