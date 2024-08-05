@@ -5,6 +5,7 @@ use solana_program::{
     instruction::{AccountMeta, Instruction},
     program_error::ProgramError,
     pubkey::Pubkey,
+    system_program,
 };
 
 /// Instructions for CToken
@@ -51,7 +52,7 @@ pub fn settle(
 ) -> Result<Instruction, ProgramError> {
     let data = CTokenInstruction::Settle { amount }.try_to_vec()?;
 
-    let accounts = vec![
+    let mut accounts = vec![
         AccountMeta::new_readonly(*c_token, false),
         AccountMeta::new_readonly(*token_authority, false),
         AccountMeta::new(*c_token_token_account, false),
@@ -61,6 +62,10 @@ pub fn settle(
         AccountMeta::new_readonly(*token_program_id, false),
         AccountMeta::new_readonly(*config, false),
     ];
+
+    if &system_program::id() == c_token_token_account {
+        accounts[2] = AccountMeta::new_readonly(*c_token_token_account, false)
+    }
 
     Ok(Instruction {
         program_id: *program_id,

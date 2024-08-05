@@ -39,7 +39,7 @@ impl Processor {
             &token_mint_info.key,
             &config_info.key,
             &token_program_info.key,
-            200000,
+            20000000,
         )?;
 
         invoke_signed(

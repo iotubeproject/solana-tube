@@ -5,8 +5,8 @@ import * as borsh from 'borsh';
 import {CToken, cTokenAccount, cTokenAccountSchema} from '../src';
 
 async function main() {
-    // const rpc = clusterApiUrl('devnet');
-    const rpc = 'http://localhost:8899';
+    // const rpc = clusterApiUrl('mainnet-beta');
+    const rpc = `${process.env.SOLANA_RPC_URL}`;
 
     const secret = JSON.parse(
         fs.readFileSync(`${process.env.PRIVATE_KEY_PATH}`).toString(),
@@ -24,6 +24,9 @@ async function main() {
         tokenMint,
         payer.publicKey,
     );
+
+    console.log(`user info: ${userInfo.toBase58()}`)
+
     const [tokenAuthority, _bumpSeed] = PublicKey.findProgramAddressSync(
         [cToken.toBuffer()],
         cTokenProgramId,
@@ -38,7 +41,7 @@ async function main() {
     // @ts-ignore
     const tokenAccount = new PublicKey(cTokenAccountState.token);
 
-    const amount = 10000n;
+    const amount = 1000000000n;
 
     const signature = await CToken.settle(
         connection,

@@ -587,9 +587,11 @@ impl Processor {
             CTokenInstruction::ChangeLimit { max, min } => {
                 Processor::process_change_limit(program_id, accounts, max, min)
             }
-            CTokenInstruction::Bridge { amount, recipient, payload } => {
-                Processor::process_bridge(program_id, accounts, amount, recipient, &payload)
-            }
+            CTokenInstruction::Bridge {
+                amount,
+                recipient,
+                payload,
+            } => Processor::process_bridge(program_id, accounts, amount, recipient, &payload),
             CTokenInstruction::Settle { amount } => {
                 Processor::process_settle(program_id, accounts, amount)
             }

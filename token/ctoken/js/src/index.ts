@@ -5,6 +5,7 @@ import type {
     TransactionSignature,
 } from '@solana/web3.js';
 import {
+    ComputeBudgetProgram,
     TransactionInstruction,
     sendAndConfirmTransaction,
 } from '@solana/web3.js';
@@ -630,9 +631,14 @@ export class CToken {
         cTokenProgramId: PublicKey,
         confirmOptions?: ConfirmOptions,
     ): Promise<TransactionSignature> {
+        const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({ 
+            microLamports: 100000
+        });
         return await sendAndConfirmTransaction(
             connection,
-            new Transaction().add(...[
+            new Transaction()
+                // .add(addPriorityFee)
+                .add(...[
                 createApproveInstruction(
                     userAccount,
                     userTransferAuthority.publicKey,

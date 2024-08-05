@@ -9,7 +9,7 @@ import * as borsh from 'borsh';
 import {CToken, cTokenAccount, cTokenAccountSchema} from '../src';
 
 async function main() {
-    // const rpc = clusterApiUrl('devnet');
+    // const rpc = clusterApiUrl('mainnet-beta');
     const rpc = `${process.env.SOLANA_RPC_URL}`;
 
     const secret = JSON.parse(
@@ -43,7 +43,7 @@ async function main() {
     // @ts-ignore
     const tokenAccount = new PublicKey(cTokenAccountState.token);
 
-    const amount = 1000000000n;
+    const amount = 10000000n;
     // console.log('Approve token');
     // await approve(
     //     connection,
@@ -54,7 +54,7 @@ async function main() {
     //     amount,
     // );
 
-    const recipient = '0xBE0a404563130Bc490442dbBCB593E67CcE336b1';
+    const recipient = '0xBD62fB256F6F6a91B6F14716eA538FD2973E5c3b';
 
     const signature = await CToken.approveBridge(
         connection,
