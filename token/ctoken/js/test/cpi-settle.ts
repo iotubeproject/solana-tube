@@ -39,8 +39,6 @@ async function main() {
     // @ts-ignore
     const tokenAccount = new PublicKey(cTokenAccountState.token);
 
-    console.log(tokenAccount)
-
     const helloProgramId = new PublicKey(`${process.env.HELLO_PROGRAM_ID}`);
     const [helloPDAPubkey, _bump_seed] = PublicKey.findProgramAddressSync(
         [Buffer.from("ctoken")],

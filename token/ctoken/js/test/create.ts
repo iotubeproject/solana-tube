@@ -39,7 +39,7 @@ async function main() {
             undefined,
             TOKEN_PROGRAM_ID,
         );
-        tokenAccount = PublicKey.default;
+        tokenAccount = tokenMint;
     } else {
         // base chain is solana
         tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);

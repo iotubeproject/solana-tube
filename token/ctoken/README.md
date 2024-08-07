@@ -77,7 +77,7 @@ Solana cToken for EQ5u8epXaVYLWhM3UXckqUMm2LaVky778pdPFwDbndWo token with FYtZbk
 
 
 ### CIOTX
-Solana cToken for 3ZmkGg3gj5KP2njgE4nGPfokPauBQQLw6LhWhV67tWKg token with HexF7Z1LezMWyV3RXQy6SGksazmFxBakKfFwxoWbg7XN authority and 0 destination is DABKRs16PqEmeysCp8fUXShQVMmLKYgBShbjZQgCHTo1
+Solana cToken for xgf3DoXeqCRVJ9hzU2vbTjfbs6j5BpCHWSmVGBV7Ryx token with ALp8YDxSWtSKgseMA5yKvAckCtGCp2z7ezkAFVWsST7T authority and 0 destination is 8DqC4xipdSztGiTmVRPoAYbfa4hKmTDvPMzmfCUxmU8S
 
 ### wSOL
 Solana cToken for So11111111111111111111111111111111111111112 token with 7oL9f6deE2oVDzwsXmSmaYHhtWkajRNE2yi5ioCUmvLr authority and 4689 destination is 3qdPWqm2iEYkTXRk3XGkuabEeXfentCUwJP1cCWrkre5
