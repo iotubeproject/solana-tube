@@ -90,4 +90,13 @@ Solana cToken for hntyVP6YFm1Hg25TN9WGLqM12b8TQmcknKrdu1oxWux token with ACKKWa5
 
 ### HONEY
 Solana cToken for 4vMsoUT2BWatFweudnQM1xedRLfJgJ7hswhcpz4xgBTy token with 3B8kvyFo5HcpVEvTrNSUbQarXeWp2jQY6QDCDb4FAu1u authority and 4689 destination is 7hkt6RgQPx2PqqWVf7KFujZCaFfm7EA5QRrDavuGtGTi
+
+### IONET
+Solana cToken for BZLbGTNCSFfoth2GYDtwr7e4imWzpR5jqcUuGEwr646K token with 5B79JuEHYyxr6NTwkRJhXQRMtna72hYiaJmPj2xyQzBc authority and 4689 destination is 148xknhJQwpUnZKbnACA1fbpToCzJBwM5nxzs1AhasDh
+
+### NATIX
+Solana cToken for FRySi8LPkuByB7VPSCCggxpewFUeeJiwEGRKKuhwpKcX token with 7b9ELSzpbqnmczzmZ96VFpxQobnJcsjdwbBeBJ8TPeVb authority and 4689 destination is 8jpZHZ14vfarAKnrzgx8bZX8tSgATB7msiswS2g1MAk2
+
+### UPT
+Solana cToken for UPTx1d24aBWuRgwxVnFmX4gNraj3QGFzL3QqBgxtWQG token with FtPfRFkFrA1tRUbBQrK3y5LtnHB8zjYpXq9Lghg8WyUf authority and 4689 destination is 2TANKzurze7DLzGs1b5QEurgTEiKm8crBhiPMdFxHxCE
 ```

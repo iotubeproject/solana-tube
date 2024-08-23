@@ -22,7 +22,7 @@ async function main() {
     );
     const config = new PublicKey(`${process.env.CONFIG}`);
 
-    let destination = 0;
+    let destination = 4689;
     let tokenMint;
     let tokenAccount;
 
@@ -53,6 +53,11 @@ async function main() {
             Keypair.generate(),
         );
     }
+
+    console.log(`cTokenAccount: ${JSON.stringify(cTokenAccount.secretKey)}`);
+    console.log(`authority: ${authority.toBase58()}`);
+    console.log(`tokenMint: ${tokenMint.toBase58()}`);
+    console.log(`tokenAccount: ${tokenAccount.toBase58()}`);
 
     console.log(`creating cToken account`);
     await CToken.createCToken(
