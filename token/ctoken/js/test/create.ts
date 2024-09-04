@@ -1,6 +1,11 @@
 import * as fs from 'fs';
 import {PublicKey, Keypair, Connection, clusterApiUrl} from '@solana/web3.js';
-import {createAccount, createMint, TOKEN_PROGRAM_ID} from '@solana/spl-token';
+import {
+    createAccount,
+    createMint,
+    TOKEN_PROGRAM_ID,
+    TOKEN_2022_PROGRAM_ID,
+} from '@solana/spl-token';
 import {CToken} from '../src';
 
 async function main() {
@@ -15,6 +20,8 @@ async function main() {
     const connection = new Connection(rpc, 'confirmed');
 
     const cTokenProgramId = new PublicKey(`${process.env.C_TOKEN_PROGRAM_ID}`);
+    // TODO hardcode for now
+    const tokenProgramId = TOKEN_2022_PROGRAM_ID;
     const cTokenAccount = Keypair.generate();
     const [authority, _bumpSeed] = PublicKey.findProgramAddressSync(
         [cTokenAccount.publicKey.toBuffer()],
@@ -37,7 +44,7 @@ async function main() {
             9, // decimals
             Keypair.generate(),
             undefined,
-            TOKEN_PROGRAM_ID,
+            tokenProgramId,
         );
         tokenAccount = tokenMint;
     } else {
@@ -51,6 +58,8 @@ async function main() {
             tokenMint,
             authority,
             Keypair.generate(),
+            undefined,
+            tokenProgramId,
         );
     }
 
@@ -66,7 +75,7 @@ async function main() {
         authority,
         tokenMint,
         tokenAccount,
-        TOKEN_PROGRAM_ID,
+        tokenProgramId,
         payer, // owner
         config,
         destination,

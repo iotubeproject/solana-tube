@@ -4,6 +4,7 @@ import {
     approve,
     getAssociatedTokenAddress,
     TOKEN_PROGRAM_ID,
+    TOKEN_2022_PROGRAM_ID,
 } from '@solana/spl-token';
 import * as borsh from 'borsh';
 import {CToken, cTokenAccount, cTokenAccountSchema} from '../src';
@@ -21,6 +22,8 @@ async function main() {
 
     const cToken = new PublicKey(`${process.env.C_TOKEN}`);
     const cTokenProgramId = new PublicKey(`${process.env.C_TOKEN_PROGRAM_ID}`);
+    // TODO hardcode for now
+    const tokenProgramId = TOKEN_2022_PROGRAM_ID;
 
     const tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);
     const config = new PublicKey(`${process.env.CONFIG}`);
@@ -28,6 +31,8 @@ async function main() {
     const userInfo = await getAssociatedTokenAddress(
         tokenMint,
         payer.publicKey,
+        false,
+        tokenProgramId,
     );
     // const [authority, _bumpSeed] = PublicKey.findProgramAddressSync(
     //     [cToken.toBuffer()],
@@ -64,9 +69,9 @@ async function main() {
         userInfo,
         userTransferAuthority,
         tokenMint,
-        TOKEN_PROGRAM_ID,
+        tokenProgramId,
         amount,
-        recipient, 
+        recipient,
         [], // payload
         payer,
         cTokenProgramId,

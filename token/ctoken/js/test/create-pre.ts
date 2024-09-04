@@ -15,15 +15,12 @@ async function main() {
     const connection = new Connection(rpc, 'confirmed');
 
     const cTokenProgramId = new PublicKey(`${process.env.C_TOKEN_PROGRAM_ID}`);
-    
 
     const config = new PublicKey(`${process.env.CONFIG}`);
 
-    const secretPre = JSON.parse(
-        `${process.env.ACCOUNT_KEYPAIR}`,
-    ) as number[];
+    const secretPre = JSON.parse(`${process.env.ACCOUNT_KEYPAIR}`) as number[];
     const secretKeyPre = Uint8Array.from(secretPre);
-    const cTokenAccount =  Keypair.fromSecretKey(secretKeyPre);
+    const cTokenAccount = Keypair.fromSecretKey(secretKeyPre);
 
     const destination = 4689;
     const tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);

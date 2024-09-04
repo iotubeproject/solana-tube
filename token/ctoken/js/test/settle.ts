@@ -25,7 +25,7 @@ async function main() {
         payer.publicKey,
     );
 
-    console.log(`user info: ${userInfo.toBase58()}`)
+    console.log(`user info: ${userInfo.toBase58()}`);
 
     const [tokenAuthority, _bumpSeed] = PublicKey.findProgramAddressSync(
         [cToken.toBuffer()],

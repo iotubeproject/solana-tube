@@ -1,11 +1,16 @@
 import * as fs from 'fs';
-import {PublicKey, Keypair, Connection, clusterApiUrl, TransactionInstruction, sendAndConfirmTransaction, Transaction} from '@solana/web3.js';
 import {
-    getAssociatedTokenAddress,
-    TOKEN_PROGRAM_ID,
-} from '@solana/spl-token';
+    PublicKey,
+    Keypair,
+    Connection,
+    clusterApiUrl,
+    TransactionInstruction,
+    sendAndConfirmTransaction,
+    Transaction,
+} from '@solana/web3.js';
+import {getAssociatedTokenAddress, TOKEN_PROGRAM_ID} from '@solana/spl-token';
 import * as borsh from 'borsh';
-import { cTokenAccount, cTokenAccountSchema } from '../src';
+import {cTokenAccount, cTokenAccountSchema} from '../src';
 
 async function main() {
     const secret = JSON.parse(
@@ -41,7 +46,7 @@ async function main() {
 
     const helloProgramId = new PublicKey(`${process.env.HELLO_PROGRAM_ID}`);
     const [helloPDAPubkey, _bump_seed] = PublicKey.findProgramAddressSync(
-        [Buffer.from("ctoken")],
+        [Buffer.from('ctoken')],
         helloProgramId,
     );
 

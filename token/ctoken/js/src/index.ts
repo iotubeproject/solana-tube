@@ -11,9 +11,7 @@ import {
 } from '@solana/web3.js';
 import {PublicKey, SystemProgram, Transaction} from '@solana/web3.js';
 import * as borsh from 'borsh';
-import {
-    createApproveInstruction
-} from '@solana/spl-token';
+import {createApproveInstruction} from '@solana/spl-token';
 
 class Assignable {
     // @ts-ignore
@@ -118,7 +116,7 @@ export const C_TOKEN_ACCOUNT_SIZE = borsh.serialize(
         destination: 4690,
         index: 0,
         max: 1000000000000,
-        min: 100000000
+        min: 100000000,
     }),
 ).length;
 
@@ -631,36 +629,38 @@ export class CToken {
         cTokenProgramId: PublicKey,
         confirmOptions?: ConfirmOptions,
     ): Promise<TransactionSignature> {
-        const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({ 
-            microLamports: 100000
+        const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports: 100000,
         });
         return await sendAndConfirmTransaction(
             connection,
             new Transaction()
                 // .add(addPriorityFee)
-                .add(...[
-                createApproveInstruction(
-                    userAccount,
-                    userTransferAuthority.publicKey,
-                    payer.publicKey,
-                    amount,
-                    [],
-                    tokenProgramId,
+                .add(
+                    ...[
+                        createApproveInstruction(
+                            userAccount,
+                            userTransferAuthority.publicKey,
+                            payer.publicKey,
+                            amount,
+                            [],
+                            tokenProgramId,
+                        ),
+                        CToken.bridgeInstruction(
+                            cToken,
+                            config,
+                            tokenAccount,
+                            userAccount,
+                            userTransferAuthority.publicKey,
+                            tokenMint,
+                            tokenProgramId,
+                            amount,
+                            recipient,
+                            payload,
+                            cTokenProgramId,
+                        ),
+                    ],
                 ),
-                CToken.bridgeInstruction(
-                    cToken,
-                    config,
-                    tokenAccount,
-                    userAccount,
-                    userTransferAuthority.publicKey,
-                    tokenMint,
-                    tokenProgramId,
-                    amount,
-                    recipient,
-                    payload,
-                    cTokenProgramId,
-                ),
-            ]),
             [payer, userTransferAuthority],
             confirmOptions,
         );
