@@ -29,7 +29,7 @@ async function main() {
     );
     const config = new PublicKey(`${process.env.CONFIG}`);
 
-    let destination = 4689;
+    const destination = 4689;
     let tokenMint;
     let tokenAccount;
 

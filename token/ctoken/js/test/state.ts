@@ -4,7 +4,7 @@ import {cTokenAccount, cTokenAccountSchema} from '../src';
 
 async function main() {
     // const rpc = clusterApiUrl('devnet');
-    const rpc = 'http://localhost:8899';
+    const rpc = `${process.env.SOLANA_RPC_URL}`;
     const connection = new Connection(rpc, 'confirmed');
 
     const cToken = new PublicKey(`${process.env.C_TOKEN}`);

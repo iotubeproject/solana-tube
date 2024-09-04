@@ -227,6 +227,21 @@ const SettlePayloadSchema = new Map([
     ],
 ]);
 
+class ChangeLimitPayload extends Assignable {}
+const ChangeLimitPayloadSchema = new Map([
+    [
+        ChangeLimitPayload,
+        {
+            kind: 'struct',
+            fields: [
+                ['id', 'u8'],
+                ['max', 'u64'],
+                ['min', 'u64'],
+            ],
+        },
+    ],
+]);
+
 export class Config {
     static async getMinBalanceRentForExemptCToken(
         connection: Connection,
@@ -523,6 +538,33 @@ export class CToken {
         });
     }
 
+    static changeLimitInstruction(
+        cToken: PublicKey,
+        config: PublicKey,
+        owner: PublicKey,
+        max: bigint,
+        min: bigint,
+        cTokenProgramId: PublicKey,
+    ): TransactionInstruction {
+        const keys = [
+            {pubkey: config, isSigner: false, isWritable: false},
+            {pubkey: cToken, isSigner: false, isWritable: true},
+            {pubkey: owner, isSigner: true, isWritable: false},
+        ];
+
+        const data = new ChangeLimitPayload({
+            id: InstructionVariant.ChangeLimit,
+            max: max,
+            min: min,
+        });
+
+        return new TransactionInstruction({
+            keys,
+            programId: cTokenProgramId,
+            data: Buffer.from(borsh.serialize(ChangeLimitPayloadSchema, data)),
+        });
+    }
+
     static async createCToken(
         connection: Connection,
         cToken: Keypair,
@@ -694,6 +736,34 @@ export class CToken {
                     tokenMint,
                     tokenProgramId,
                     amount,
+                    cTokenProgramId,
+                ),
+            ),
+            [payer],
+            confirmOptions,
+        );
+    }
+
+    // payer is owner
+    static async changeLimit(
+        connection: Connection,
+        cToken: PublicKey,
+        config: PublicKey,
+        max: bigint,
+        min: bigint,
+        payer: Keypair,
+        cTokenProgramId: PublicKey,
+        confirmOptions?: ConfirmOptions,
+    ): Promise<TransactionSignature> {
+        return await sendAndConfirmTransaction(
+            connection,
+            new Transaction().add(
+                CToken.changeLimitInstruction(
+                    cToken,
+                    config,
+                    payer.publicKey,
+                    max,
+                    min,
                     cTokenProgramId,
                 ),
             ),
