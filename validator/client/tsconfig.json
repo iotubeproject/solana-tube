@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "strictNullChecks": false,
+    "skipLibCheck": true,
+  },
+  "include": [
+    "src/**/*",
+  ]
+}
