@@ -644,6 +644,8 @@ export class CToken {
                     userTransferAuthority.publicKey,
                     payer.publicKey,
                     amount,
+                    [],
+                    tokenProgramId,
                 ),
                 CToken.bridgeInstruction(
                     cToken,
