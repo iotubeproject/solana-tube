@@ -9,20 +9,20 @@ import { getSimulationComputeUnits } from '@solana-developers/helpers';
 
 export async function optimalSendTransaction(connection: Connection, instructions: TransactionInstruction[], signers: Keypair[], feePayer: Keypair) {
     // Create the priority fee instructions
-    const units = await getSimulationComputeUnits(connection, instructions, feePayer.publicKey, [],)
 
     const computePriceIx = ComputeBudgetProgram.setComputeUnitPrice({
         microLamports: 100000,
     });
 
-    const computeLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
-        units: Math.ceil(units * 1.5),
-    });
+    // const units = await getSimulationComputeUnits(connection, instructions, feePayer.publicKey, [],)
+    // const computeLimitIx = ComputeBudgetProgram.setComputeUnitLimit({
+    //     units: Math.ceil(units * 1.5),
+    // });
 
 
     let transaction = new Transaction().add(
         computePriceIx,
-        computeLimitIx,
+        // computeLimitIx,
         ...instructions
     )
 
