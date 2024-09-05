@@ -5,6 +5,13 @@
 yarn install
 ```
 
+## Generate PrivateKey from Seed 
+
+```
+export SEED=xxxxxxxxx
+yarn ts-node src/keyfromseed.ts
+```
+
 ## Add New witness 
 
 ### Mint token to witness address
