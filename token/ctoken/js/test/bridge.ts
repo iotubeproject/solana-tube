@@ -23,7 +23,7 @@ async function main() {
     const cToken = new PublicKey(`${process.env.C_TOKEN}`);
     const cTokenProgramId = new PublicKey(`${process.env.C_TOKEN_PROGRAM_ID}`);
     // TODO hardcode for now
-    const tokenProgramId = TOKEN_2022_PROGRAM_ID;
+    const tokenProgramId = TOKEN_PROGRAM_ID;
 
     const tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);
     const config = new PublicKey(`${process.env.CONFIG}`);
@@ -34,6 +34,7 @@ async function main() {
         false,
         tokenProgramId,
     );
+    console.log(userInfo.toBase58());
     // const [authority, _bumpSeed] = PublicKey.findProgramAddressSync(
     //     [cToken.toBuffer()],
     //     cTokenProgramId,

@@ -99,4 +99,7 @@ Solana cToken for FRySi8LPkuByB7VPSCCggxpewFUeeJiwEGRKKuhwpKcX token with 7b9ELS
 
 ### UPT
 Solana cToken for UPTx1d24aBWuRgwxVnFmX4gNraj3QGFzL3QqBgxtWQG token with FtPfRFkFrA1tRUbBQrK3y5LtnHB8zjYpXq9Lghg8WyUf authority and 4689 destination is 2TANKzurze7DLzGs1b5QEurgTEiKm8crBhiPMdFxHxCE
+
+### SENTAI
+Solana cToken for CXPLyc3EX8WySgEXLbjhuA7vy8EKQokVJYQuJm2jpump token with 9vji2osGQAS9w1yq2DMtbakDhxrY74CbbpKzHP9dKt83 authority and 4689 destination is 6kSq3ZbBDjLegqMdRCzdL6QwGSwqZ2yQL2YsTLRZg6Kf
 ```

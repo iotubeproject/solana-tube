@@ -672,12 +672,12 @@ export class CToken {
         confirmOptions?: ConfirmOptions,
     ): Promise<TransactionSignature> {
         const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
-            microLamports: 100000,
+            microLamports: 1000,
         });
         return await sendAndConfirmTransaction(
             connection,
             new Transaction()
-                // .add(addPriorityFee)
+                //.add(addPriorityFee)
                 .add(
                     ...[
                         createApproveInstruction(
