@@ -438,8 +438,8 @@ export class CToken {
         owner: PublicKey,
         config: PublicKey,
         destination: number,
-        max: number,
-        min: number,
+        max: number | bigint,
+        min: number | bigint,
         cTokenProgramId: PublicKey,
     ): TransactionInstruction {
         const keys = [
@@ -575,8 +575,8 @@ export class CToken {
         owner: Keypair,
         config: PublicKey,
         destination: number,
-        max: number,
-        min: number,
+        max: number | bigint,
+        min: number | bigint,
         cTokenProgramId: PublicKey,
         payer: Keypair,
         confirmOptions?: ConfirmOptions,

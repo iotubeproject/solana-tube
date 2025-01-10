@@ -12,7 +12,6 @@ import {
 import {
     getAssociatedTokenAddress,
     createAccount,
-    setAuthority,
     TOKEN_PROGRAM_ID,
     TOKEN_2022_PROGRAM_ID,
     AuthorityType,
@@ -26,7 +25,6 @@ import {
 import type {DataV2} from '@metaplex-foundation/mpl-token-metadata';
 import {
     createMetadataAccountV3,
-    findMetadataPda,
     mplTokenMetadata,
 } from '@metaplex-foundation/mpl-token-metadata';
 import {mplToolbox} from '@metaplex-foundation/mpl-toolbox';
@@ -36,7 +34,6 @@ import {
     toWeb3JsInstruction,
 } from '@metaplex-foundation/umi-web3js-adapters';
 import {
-    Instruction,
     createSignerFromKeypair,
     none,
     signerIdentity,
@@ -174,41 +171,6 @@ async function main() {
             [payer, tokenKeypair],
         );
 
-        // tokenMint = await createMint(
-        //     connection,
-        //     payer,
-        //     payer.publicKey,
-        //     null,
-        //     9, // decimals
-        //     Keypair.generate(),
-        //     {
-        //         commitment: 'finalized',
-        //     },
-        //     tokenProgramId,
-        // );
-        // console.log(`Created mint account: ${tokenMint.toBase58()}`);
-
-        // console.log(`Add metadata...`);
-        // await addMetadata(
-        //     payer,
-        //     tokenMint,
-        //     'Crosschain IOTX',
-        //     'CIOTX',
-        //     'https://ipfs.io/ipfs/QmTiJvqUJLxq6XbntxoT6tB7VLfPKweagBvknWuCZfdu16',
-        // );
-
-        // console.log(`Mint...`);
-
-        // console.log(`Restore authority...`)
-        // await setAuthority(
-        //     connection,
-        //     payer,
-        //     tokenMint,
-        //     payer.publicKey,
-        //     AuthorityType.MintTokens,
-        //     authority,
-        // );
-
         tokenAccount = tokenMint;
     } else {
         // base chain is solana
@@ -242,8 +204,8 @@ async function main() {
         payer, // owner
         config,
         destination,
-        1000000000000,
-        1000000,
+        50000000000000000n,
+        20000000000,
         cTokenProgramId,
         payer,
     );

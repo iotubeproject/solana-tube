@@ -22,7 +22,7 @@ async function main() {
     const secretKeyPre = Uint8Array.from(secretPre);
     const cTokenAccount = Keypair.fromSecretKey(secretKeyPre);
 
-    const destination = 4689;
+    const destination = 0;
     const tokenMint = new PublicKey(`${process.env.TOKEN_MINT}`);
     const tokenAccount = new PublicKey(`${process.env.TOKEN_ACCOUNT}`);
 
@@ -46,8 +46,8 @@ async function main() {
         payer, // owner
         config,
         destination,
-        1000000000000,
-        1000000,
+        50000000000000000n,
+        20000000000,
         cTokenProgramId,
         payer,
     );

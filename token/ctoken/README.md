@@ -76,8 +76,11 @@ config: E83sFGG5R3psWhotZSihbPb6DLmLnGK122ZF9q7VmYSM
 Solana cToken for EQ5u8epXaVYLWhM3UXckqUMm2LaVky778pdPFwDbndWo token with FYtZbkA2xcC1DY4r6V3wVd3EBZKSaVmPBBfaPDLFznQd authority and 4690 destination is 5bqcayC1seq19cL9kDEuigfRoK27SMGQdTKcJABSeXMy
 
 
-### CIOTX
+### CIOTX - 
 Solana cToken for xgf3DoXeqCRVJ9hzU2vbTjfbs6j5BpCHWSmVGBV7Ryx token with ALp8YDxSWtSKgseMA5yKvAckCtGCp2z7ezkAFVWsST7T authority and 0 destination is 8DqC4xipdSztGiTmVRPoAYbfa4hKmTDvPMzmfCUxmU8S
+
+### CIOTX - new
+Solana cToken for 6hyKjmnuX6je63fEhWnog9kVnqp9WeKWFeXxnYeUMW7d token with CszGKDtw43KgXs2uQAtvqrDVyGAkuSbTgUaw3M8rSM9v authority and 0 destination is GyyyCXcyL2vk8igomynjB8NyWRwRfWe3UC7TnU4rvPvi
 
 ### wSOL
 Solana cToken for So11111111111111111111111111111111111111112 token with 7oL9f6deE2oVDzwsXmSmaYHhtWkajRNE2yi5ioCUmvLr authority and 4689 destination is 3qdPWqm2iEYkTXRk3XGkuabEeXfentCUwJP1cCWrkre5
