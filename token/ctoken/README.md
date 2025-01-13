@@ -105,4 +105,7 @@ Solana cToken for UPTx1d24aBWuRgwxVnFmX4gNraj3QGFzL3QqBgxtWQG token with FtPfRFk
 
 ### SENTAI
 Solana cToken for CXPLyc3EX8WySgEXLbjhuA7vy8EKQokVJYQuJm2jpump token with 9vji2osGQAS9w1yq2DMtbakDhxrY74CbbpKzHP9dKt83 authority and 4689 destination is 6kSq3ZbBDjLegqMdRCzdL6QwGSwqZ2yQL2YsTLRZg6Kf
+
+### N3
+Solana cToken for ChgcF87x41CKDzNP7yTHnea69byiqcrhytC7WM8XgkHg token with DtupM9FP4veoaCmc3q5CRFAQywbVnseuHvHFNpQtBU9X authority and 0 destination is 2w7sttFwL4wmqbwYqFSAJEcQ3PuB2sPoRivN1NjWykHq
 ```
