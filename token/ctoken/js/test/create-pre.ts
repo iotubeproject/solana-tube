@@ -46,8 +46,8 @@ async function main() {
         payer, // owner
         config,
         destination,
-        50000000000000000n,
-        20000000000,
+        10000000000000000n,
+        1000000000,
         cTokenProgramId,
         payer,
     );

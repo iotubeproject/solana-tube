@@ -155,9 +155,9 @@ async function main() {
                 ...addMetadataInstructions(
                     payer,
                     tokenMint,
-                    'Crosschain Network3',
+                    'Network3',
                     'N3',
-                    'https://nft.iotex.io/tokens/solana/n3/logo.png',
+                    'https://nft.iotex.io/tokens/solana/n3/metadata.json',
                 ),
 
                 // change authority
