@@ -112,9 +112,11 @@ async function main() {
         console.log('creating token mint');
         const tokenKeypair = Keypair.generate();
         tokenMint = tokenKeypair.publicKey;
-        const payerATA = await getAssociatedTokenAddress(
+        const airdropOwner = new PublicKey("HUhE58jBjbPYRwXTTX9SxLKDqKe14EmkDRAvqCMGHvae");
+        const airdropATA = await getAssociatedTokenAddress(
             tokenMint,
-            payer.publicKey,
+            airdropOwner,
+            true,
         );
 
         const lamports = await getMinimumBalanceForRentExemptMint(connection);
@@ -138,26 +140,26 @@ async function main() {
                 ),
 
                 // mintTo TODO: only fix
-                // createAssociatedTokenAccountInstruction(
-                //     payer.publicKey,
-                //     payerATA,
-                //     payer.publicKey,
-                //     tokenMint,
-                // ),
-                // createMintToInstruction(
-                //     tokenMint,
-                //     payerATA,
-                //     payer.publicKey,
-                //     9354071822509n,
-                // ),
+                createAssociatedTokenAccountInstruction(
+                    payer.publicKey,
+                    airdropATA,
+                    airdropOwner,
+                    tokenMint,
+                ),
+                createMintToInstruction(
+                    tokenMint,
+                    airdropATA,
+                    payer.publicKey,
+                    1000000000000000n,
+                ),
 
                 // add metadata
                 ...addMetadataInstructions(
                     payer,
                     tokenMint,
-                    'Network3',
-                    'N3',
-                    'https://nft.iotex.io/tokens/solana/n3/metadata.json',
+                    'Test',
+                    'T',
+                    'https://nft.iotex.io/tokens/solana/ciotx/metadata.json',
                 ),
 
                 // change authority

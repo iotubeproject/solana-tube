@@ -21,7 +21,7 @@ async function main() {
         connection,
         cToken,
         config,
-        BigInt('10000000000000'),
+        BigInt('1000000000000000000'),
         BigInt('1000000'),
         payer,
         cTokenProgramId,
