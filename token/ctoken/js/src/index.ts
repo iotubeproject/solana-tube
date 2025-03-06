@@ -7,11 +7,13 @@ import type {
 import {
     ComputeBudgetProgram,
     TransactionInstruction,
+    sendAndConfirmRawTransaction,
     sendAndConfirmTransaction,
 } from '@solana/web3.js';
 import {PublicKey, SystemProgram, Transaction} from '@solana/web3.js';
 import * as borsh from 'borsh';
 import {createApproveInstruction} from '@solana/spl-token';
+import AppSolana from '@ledgerhq/hw-app-solana'
 
 class Assignable {
     // @ts-ignore
@@ -392,6 +394,46 @@ export class Config {
                 ),
             ),
             [owner],
+            confirmOptions,
+        );
+    }
+
+    static async transferOwnerWithLedger(
+        connection: Connection,
+        config: PublicKey,
+        newOwner: PublicKey,
+        cTokenProgramId: PublicKey,
+        owner: AppSolana,
+        ownerAddr: PublicKey,
+        confirmOptions?: ConfirmOptions,
+    ): Promise<TransactionSignature> {
+        const transaction = new Transaction();
+        const addPriorityFee = ComputeBudgetProgram.setComputeUnitPrice({
+            microLamports: 10000,
+        });
+        transaction.add(
+            addPriorityFee,
+            Config.transferOwnerInstruction(
+                config,
+                ownerAddr,
+                newOwner,
+                cTokenProgramId,
+            ),
+        );
+        let blockhash = await connection.getLatestBlockhash();
+        transaction.feePayer = ownerAddr;
+        transaction.recentBlockhash = blockhash.blockhash;
+        transaction.lastValidBlockHeight = blockhash.lastValidBlockHeight;
+
+        const unsignedTx = transaction.serializeMessage();
+
+        const sig = await owner.signTransaction("44'/501'/0'/0'", unsignedTx);
+        transaction.addSignature(ownerAddr, sig.signature);
+        const signedTx = transaction.serialize();
+
+        return await sendAndConfirmRawTransaction(
+            connection,
+            signedTx,
             confirmOptions,
         );
     }
