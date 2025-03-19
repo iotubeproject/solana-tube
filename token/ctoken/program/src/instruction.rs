@@ -36,6 +36,7 @@ pub enum CTokenInstruction {
     Settle {
         amount: u64,
     },
+    TransferTokenAuthority,
 }
 
 pub fn settle(

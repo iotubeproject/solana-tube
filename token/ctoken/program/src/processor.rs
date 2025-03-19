@@ -18,6 +18,7 @@ use spl_token_2022::{
     check_spl_token_program_account,
     error::TokenError,
     extension::StateWithExtensions,
+    instruction::AuthorityType,
     state::{Account, Mint},
 };
 
@@ -154,6 +155,30 @@ impl Processor {
         )
     }
 
+    /// Issue a spl_token `SetAuthority` instruction.
+    pub fn token_set_authority<'a>(
+        c_token: &Pubkey,
+        token_program: AccountInfo<'a>,
+        mint: AccountInfo<'a>,
+        authority: AccountInfo<'a>,
+        new_authority: &Pubkey,
+        bump_seed: u8,
+    ) -> Result<(), ProgramError> {
+        let c_token_bytes = c_token.to_bytes();
+        let authority_signature_seeds = [&c_token_bytes[..32], &[bump_seed]];
+        let signers = &[&authority_signature_seeds[..]];
+        let ix = spl_token_2022::instruction::set_authority(
+            token_program.key,
+            mint.key,
+            Some(new_authority),
+            AuthorityType::MintTokens,
+            authority.key,
+            &[],
+        )?;
+
+        invoke_signed_wrapper::<TokenError>(&ix, &[mint, authority, token_program], signers)
+    }
+
     pub fn authority_id(
         program_id: &Pubkey,
         my_info: &Pubkey,
@@ -207,6 +232,68 @@ impl Processor {
         config.serialize(&mut *config_info.data.borrow_mut())?;
 
         msg!("Owner change to {}", new_owner_info.key);
+
+        Ok(())
+    }
+
+    pub fn process_transfer_token_authority(
+        program_id: &Pubkey,
+        accounts: &[AccountInfo],
+    ) -> ProgramResult {
+        let account_info_iter = &mut accounts.iter();
+
+        let c_token_info = next_account_info(account_info_iter)?;
+        let owner_info = next_account_info(account_info_iter)?;
+        let token_authority_info = next_account_info(account_info_iter)?;
+        let new_token_authority_info = next_account_info(account_info_iter)?;
+        let token_mint_info = next_account_info(account_info_iter)?;
+        let token_program_info = next_account_info(account_info_iter)?;
+        let config_info = next_account_info(account_info_iter)?;
+
+        if config_info.owner != program_id {
+            return Err(ProgramError::IncorrectProgramId);
+        }
+        if c_token_info.owner != program_id {
+            return Err(ProgramError::IncorrectProgramId);
+        }
+
+        let config = Config::try_from_slice(&config_info.data.borrow())?;
+        if !owner_info.is_signer || *owner_info.key != config.owner {
+            return Err(CTokenError::InvalidOwner.into());
+        }
+
+        let c_token = CToken::try_from_slice(&c_token_info.data.borrow())?;
+        if c_token.config != *config_info.key {
+            return Err(CTokenError::InvalidConfig.into());
+        }
+        if token_program_info.key != &c_token.token_program_id {
+            return Err(CTokenError::InvalidInput.into());
+        }
+        if c_token.token_mint != *token_mint_info.key {
+            return Err(CTokenError::InvalidMint.into());
+        }
+        if c_token.destination != 0 {
+            return Err(CTokenError::InvalidToken.into());
+        }
+        if *token_authority_info.key
+            != Self::authority_id(program_id, c_token_info.key, c_token.bump_seed)?
+        {
+            return Err(CTokenError::InvalidProgramAddress.into());
+        }
+        Self::token_set_authority(
+            c_token_info.key,
+            token_program_info.clone(),
+            token_mint_info.clone(),
+            token_authority_info.clone(),
+            new_token_authority_info.key,
+            c_token.bump_seed,
+        )?;
+
+        msg!(
+            "Transfer the authority of token {} to {}",
+            token_mint_info.key,
+            new_token_authority_info.key,
+        );
 
         Ok(())
     }
@@ -594,6 +681,9 @@ impl Processor {
             } => Processor::process_bridge(program_id, accounts, amount, recipient, &payload),
             CTokenInstruction::Settle { amount } => {
                 Processor::process_settle(program_id, accounts, amount)
+            }
+            CTokenInstruction::TransferTokenAuthority => {
+                Processor::process_transfer_token_authority(program_id, accounts)
             }
         }
     }

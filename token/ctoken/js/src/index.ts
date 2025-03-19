@@ -129,6 +129,7 @@ enum InstructionVariant {
     ChangeLimit,
     Bridge,
     Settle,
+    TransferTokenAuthority,
 }
 
 class ConfigPayload extends Assignable {}
@@ -238,6 +239,17 @@ const ChangeLimitPayloadSchema = new Map([
                 ['max', 'u64'],
                 ['min', 'u64'],
             ],
+        },
+    ],
+]);
+
+class TransferTokenAuthorityPayload extends Assignable {}
+const TransferTokenAuthorityPayloadSchema = new Map([
+    [
+        TransferTokenAuthorityPayload,
+        {
+            kind: 'struct',
+            fields: [['id', 'u8']],
         },
     ],
 ]);
@@ -565,6 +577,39 @@ export class CToken {
         });
     }
 
+    static transferTokenAuthorityInstruction(
+        cToken: PublicKey,
+        owner: PublicKey,
+        tokenAuthority: PublicKey,
+        newTokenAuthority: PublicKey,
+        tokenMint: PublicKey,
+        tokenProgramId: PublicKey,
+        config: PublicKey,
+        cTokenProgramId: PublicKey,
+    ): TransactionInstruction {
+        const keys = [
+            {pubkey: cToken, isSigner: false, isWritable: false},
+            {pubkey: owner, isSigner: true, isWritable: false},
+            {pubkey: tokenAuthority, isSigner: false, isWritable: false},
+            {pubkey: newTokenAuthority, isSigner: false, isWritable: false},
+            {pubkey: tokenMint, isSigner: false, isWritable: true},
+            {pubkey: tokenProgramId, isSigner: false, isWritable: false},
+            {pubkey: config, isSigner: false, isWritable: false},
+        ];
+
+        const data = new TransferTokenAuthorityPayload({
+            id: InstructionVariant.TransferTokenAuthority,
+        });
+
+        return new TransactionInstruction({
+            keys,
+            programId: cTokenProgramId,
+            data: Buffer.from(
+                borsh.serialize(TransferTokenAuthorityPayloadSchema, data),
+            ),
+        });
+    }
+
     static async createCToken(
         connection: Connection,
         cToken: Keypair,
@@ -768,6 +813,37 @@ export class CToken {
                 ),
             ),
             [payer],
+            confirmOptions,
+        );
+    }
+
+    static async transferTokenAuthority(
+        connection: Connection,
+        cToken: PublicKey,
+        tokenAuthority: PublicKey,
+        newTokenAuthority: PublicKey,
+        tokenMint: PublicKey,
+        tokenProgramId: PublicKey,
+        config: PublicKey,
+        owner: Keypair,
+        cTokenProgramId: PublicKey,
+        confirmOptions?: ConfirmOptions,
+    ): Promise<TransactionSignature> {
+        return await sendAndConfirmTransaction(
+            connection,
+            new Transaction().add(
+                CToken.transferTokenAuthorityInstruction(
+                    cToken,
+                    owner.publicKey,
+                    tokenAuthority,
+                    newTokenAuthority,
+                    tokenMint,
+                    tokenProgramId,
+                    config,
+                    cTokenProgramId,
+                ),
+            ),
+            [owner],
             confirmOptions,
         );
     }
