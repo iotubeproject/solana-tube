@@ -97,6 +97,11 @@ impl<'a> MessageParser<'a> for IoTubeProtocol<'a> {
                     is_signer: false,
                     is_writable: true,
                 };
+                instruction.accounts[6] = AccountMetaData {
+                    pubkey: c_token.token_program_id,
+                    is_signer: false,
+                    is_writable: false,
+                };
                 instruction.accounts[7] = AccountMetaData {
                     pubkey: c_token.config,
                     is_signer: false,
